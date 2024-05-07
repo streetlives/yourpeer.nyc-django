@@ -1,0 +1,60 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<div class="flex items-center justify-between px-5 py-4">
+    <div class="flex items-center">
+        <button class="hover:cursor-pointer text-white hover:text-gray-300 inline-block transition"
+                @click="show = !show">
+            <!-- Heroicon: 'x-mark' -->
+            <svg x-show="show"
+                 xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="w-5 h-5">
+                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+        </button>
+    </div>
+    <div class="text-sm text-gray-200">
+        <span class="text-white font-bold">YourPeer</span>NYC
+    </div>
+    <button class="inline-flex items-center text-[10px] sm:text-xs uppercase font-medium text-danger space-x-1">
+        <span class="inline-block">Quick Exit</span>
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             class="w-5 h-5">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+        </svg>
+    </button>
+</div>
+<div class="text-white px-5 py-10 flex flex-col">
+    <h4 class="text-white font-semibold mb-4 text-sm">Explore Services</h4>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Find Services Nearby</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Browse all Services</a>
+    <h4 class="font-semibold my-6 text-sm">
+        <a href="#" class="underline text-white hover:no-underline inline-block">Provider Portal</a>
+    </h4>
+    <h4 class="text-white font-semibold mb-4 text-sm">Resources</h4>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Articles</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Events and webinars</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Glossary of terms</a>
+    <h4 class="text-white font-semibold mb-4 mt-6 text-sm">About</h4>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">About this website</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Careers</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Partners</a>
+    <a href="#"
+       class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">FAQ</a>
+</div>

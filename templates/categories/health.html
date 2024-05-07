@@ -1,0 +1,46 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% block title %}<h3 style="text-align:center;">Health</h3>{% endblock %}
+
+{% block content %}
+ <body>
+
+    {% for organization in page_obj %}
+      {# Each "organization" is an Organization model object #}
+      <b>{{ organization.organization_name }}</b><br>
+      <b>Address:</b> {{ organization.address_1 }}<br>
+      <b>Service:</b> {{ organization.service_name }}<br>
+      <b>Website:</b>{{ organization.organization_url }}<br>
+      <b>Service description:</b> {{ organization.service_description }}<br>
+      <b>Geoposition data:</b> {{ organization.position }}<br>
+      <b>City:</b> {{ organization.city }}<br>
+      <b>Postal code:</b> {{ organization.postal_code }}
+      <br>
+      <br>
+    {% endfor %}
+    
+   <div class="pagination">
+      <span class="step-links">
+          {% if page_obj.has_previous %}
+              <a href="?page=1">&laquo; first</a>
+              <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+          {% endif %}
+  
+          <span class="current">
+              <br>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+  
+          {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}">next</a>
+              <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+          {% endif %}
+      </span>
+  </div>
+
+ </body> 
+{% endblock %}

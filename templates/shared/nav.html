@@ -1,0 +1,133 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% load static %}
+
+<nav id="nav" class="relative filter bg-yellow z-10" x-data="{mobile_open: false}">
+	<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+
+		<div class="relative flex items-center justify-between h-16">
+			<div class="absolute inset-y-0 left-0 flex items-center md:hidden">
+				<!-- Mobile menu button-->
+				<button type="button"
+					class="inline-flex items-center justify-center p-2 rounded-md text-primary hover:text-white  hover:bg-primary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black fill-black"
+					aria-controls="mobile-menu" aria-expanded="false" @click="mobile_open = !mobile_open">
+					<span class="sr-only">Open main menu</span>
+					<!--
+              Icon when menu is closed.
+  
+              Heroicon name: outline/menu
+  
+              Menu open: "hidden", Menu closed: "block"
+            -->
+					<svg class="block h-6 w-6 fill-black stroke-black hover:stroke-white hover:fill-white" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" fill="black" stroke="black"
+						 aria-hidden="true" x-show="!mobile_open">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M4 6h16M4 12h16M4 18h16" />
+					</svg>
+					<!--
+              Icon when menu is open.
+  
+              Heroicon name: outline/x
+  
+              Menu open: "block", Menu closed: "hidden"
+            -->
+					<svg class="h-6 w-6 stroke-black hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="black"
+						 aria-hidden="true" x-show="mobile_open">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+			<div class="flex-1 flex items-center justify-center md:items-stretch md:justify-start">
+				<div class="flex-shrink-0 flex items-center">
+					<a href="#" class=" text-2xl tracking-tight">
+
+						<span class="h-8 font-bold">YourPeer</span><span>NYC</span>
+					</a>
+
+					<!-- <img class="block lg:hidden h-8 w-auto" src="{% static 'src/svg/logo-white.svg' %}" alt="Workflow">
+					<img class="hidden lg:block h-8 w-auto" src="{% static 'src/svg/logo-white.svg' %}" alt="Workflow"> -->
+				</div>
+				<div class="hidden sm:block sm:ml-6">
+					<div class="flex space-x-4">
+						<!-- Current: "bg-gray-900 ", Default: "text-gray-300 hover:bg-gray-700 hover:" -->
+						<!-- <a href="#" class="bg-gray-900  px-3 py-2 rounded-md text-sm font-medium"
+                            aria-current="page">Features</a>
+
+                        <a href="#"
+                            class="text-gray-300 hover:bg-gray-700 hover: px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
+
+                        <a href="#"
+                            class="text-gray-300 hover:bg-gray-700 hover: px-3 py-2 rounded-md text-sm font-medium">Contact
+                        </a> -->
+					</div>
+
+				</div>
+			</div>
+
+
+			<div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+				<a href="#"
+					class="whitespace-nowrap text-base font-medium  hover:text-gray-300">
+					Sign in
+				</a>
+				<a href="#"
+					class="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium  bg-emerald-600 hover:bg-emerald-700">
+					Create an account
+				</a>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Mobile menu, show/hide based on menu state. -->
+	<div class="sm:hidden" id="mobile-menu" x-show="mobile_open" x-transition:enter="transition ease-out duration-300"
+		x-transition:enter-start="opacity-0 transform scale-90" x-transition:enter-end="opacity-100 transform scale-100"
+		x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform scale-100"
+		x-transition:leave-end="opacity-0 transform scale-90">
+		<div class="px-2 pt-2 pb-3 space-y-1">
+			<!-- Current: "bg-gray-900 ", Default: "text-gray-300 hover:bg-gray-700 hover:" -->
+			<!-- <a href="#" class="bg-gray-900  block px-3 py-2 rounded-md text-base font-medium"
+                aria-current="page">Features</a>
+
+            <a href="#"
+                class="text-gray-300 hover:bg-gray-700 hover: block px-3 py-2 rounded-md text-base font-medium">Pricing</a>
+
+            <a href="#"
+                class="text-gray-300 hover:bg-gray-700 hover: block px-3 py-2 rounded-md text-base font-medium">Contact</a> -->
+			{% if not user.is_authenticated and not "confirm-email" in request.path_info %}
+			<div>
+				<a href="#"
+					class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium  bg-emerald-600 hover:bg-emerald-700">
+					Create an account
+				</a>
+				<p class="mt-6 text-center text-base font-medium text-gray-500">
+					Existing customer?
+					<a href="#" class="text-emerald-600 hover:text-emerald-500">
+						Sign in
+					</a>
+				</p>
+			</div>
+			{% else %}
+			<div class="mt-3 space-y-1">
+				<!-- <a href="#"
+					class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Your
+					Profile</a> -->
+
+				<a href='#'
+					class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Settings</a>
+
+				<a href="#"
+					class=" block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Sign
+					out</a>
+			</div>
+			{% endif %}
+
+		</div>
+	</div>
+</nav>

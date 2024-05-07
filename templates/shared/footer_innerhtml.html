@@ -1,0 +1,63 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% load static%}
+
+<div
+  class="mx-auto max-w-5xl px-5 flex flex-col pt-11"
+>
+  <div>
+    <div class="lg:flex">
+      <div class="lg:flex-1">
+        <h3 class="text-white font-semibold mb-5 text-left">
+          Company
+        </h3>
+        <div class="grid grid-cols-2 gap-y-2 gap-x-5 ">
+          <div><a href="{% url 'about-us' %}" class="text-gray-300 text-base font-normal">About</a></div>
+          <div><a href="{% url 'terms-of-use' %}" class="text-gray-300 text-base font-normal">Terms</a></div>
+          <div><a href="{% url 'contact-us' %}" class="text-gray-300 text-base font-normal">Contact</a></div>
+          <div><a href="{% url 'privacy-policy' %}" class="text-gray-300 text-base font-normal">Privacy</a></div>
+          <div><a href="{% url 'donate' %}" class="text-gray-300 text-base font-normal">Donate</a></div>
+        </div>
+      </div>
+      <div class="lg:flex-1 mt-8 lg:mt-0">
+        <h3 class="text-white font-semibold mb-5 text-left">
+          Resources
+        </h3>
+        <div class="flex gap-x-5">
+          <div class="flex flex-col gap-y-2 flex-1">
+            <div><a href="{% url 'map' %}" class="text-gray-300 text-base font-normal">All locations</a></div>
+            <div><a href="{% url 'shelters-housing' %}" class="text-gray-300 text-base font-normal">Shelter & Housing</a></div>
+            <div><a href="{% url 'food' %}" class="text-gray-300 text-base font-normal">Food</a></div>
+            <div><a href="{% url 'clothing' %}" class="text-gray-300 text-base font-normal">Clothing</a></div>
+          </div>
+          <div class="flex flex-col gap-y-2 flex-1">
+            <div><a href="{% url 'personal-care' %}" class="text-gray-300 text-base font-normal">Personal Care</a></div>
+            <div><a href="{% url 'health' %}" class="text-gray-300 text-base font-normal">Health Care</a></div>
+            <div><a href="{% url 'other-services' %}" class="text-gray-300 text-base font-normal">Other Services</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 lg:mt-0">
+        <h3 class="text-white font-semibold mb-5 text-left">
+          Social
+        </h3>
+        <div class="flex gap-x-5">
+          <div class="flex flex-col gap-y-2 flex-1">
+            <div><a href="https://www.tiktok.com/@YourPeer.NYC" target="_blank" class="text-gray-300 text-base font-normal">Tiktok</a></div>
+            <div><a href="https://www.instagram.com/YourPeer.NYC" target="_blank" class="text-gray-300 text-base font-normal">Instagram</a></div>
+            <div><a href="https://www.facebook.com/yourpeer.nyc" target="_blank" class="text-gray-300 text-base font-normal">Facebook</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center mt-14 pb-4">
+      <p class="text-center text-gray-200">&copy; Streetlives, Inc.</p>
+    </div>
+  </div>
+</div>

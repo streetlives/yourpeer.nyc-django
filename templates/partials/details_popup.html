@@ -1,0 +1,126 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<div 
+class="p-5 fixed md:hidden bottom-0 inset-x-0 rounded-t-lg z-30 bg-white"
+style="display: none;"
+>
+<div class="flex items-start justify-between">
+  <div class="text-dark text-base font-medium">
+  {% if this_lcoation %}
+    {{ location.name }}
+  {% else %}
+    Metropolitan Community Church of New York (MCCNY) Charities
+  {% endif %}
+  </div>
+  <button @click="$store.detailsPopupMobile = false" class="text-dark ml-2">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="w-6 h-6"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  </button>
+</div>
+<div class="mt-1">
+  <p class="text-xs text-neutral-500 mb-1" x-text="$store.currentLocation.location_name">
+  {% if location %}
+  {{ location.location_name}}
+  {% endif %}
+  </p>
+  <p class="flex items-center gap-x-1 text-xs text-neutral-500">
+
+    <span x-cloak x-text="$store.currentLocation.area || $store.currentLocation.city" class="truncate">
+    {% if location %}
+      {{ location.area }}
+    {% endif %}
+    </span>
+    <span >•</span>
+    {% comment %} <span x-show="$store.currentLocation.distance" class="truncate" x-cloak><span x-text="$store.currentLocation.distance" ></span> mi</span> {% endcomment %}
+    <span class="text-success truncate"> ✓ Validated <span x-text="$store.currentLocation.last_updated"></span></span>
+  </p>
+</div>
+<ul class="mt-5 flex flex-wrap gap-2 max-h-40 overflow-y-auto scrollbar-hide">
+  <template x-if="$store.currentLocation.accommodation_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <svg width="16"
+           height="20"
+           viewBox="0 0 16 20"
+           fill="none"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 5L2 11H3.71429V16H6.28571V12.5714H9.71429V16H12.2857V11H14L8 5Z" fill="#323232" stroke="#323232" stroke-width="1.5" stroke-linejoin="round" />
+      </svg>
+      <p x-text="$store.currentLocation.accommodation_services.services.reduce((r,i)=> r + i.name + ' • ', '').slice(0,-3)">
+        Intake for Overnight Stay
+      </p>
+    </li>
+  </template>
+  <template x-if="$store.currentLocation.food_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <img src="{% static "dist/img/icons/food-icon.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+      <p x-text="$store.currentLocation.food_services.services.reduce((r,i)=> r + i.name + ' • ','').slice(0,-3)">Food Pantry</p>
+    </li>
+  </template>
+  <template x-if="$store.currentLocation.clothing_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <img src="{% static "dist/img/icons/clothing.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+      <p x-text="$store.currentLocation.clothing_services.services.reduce((r,i)=> r + i.name + ' • ','').slice(0,-3)">Clothing Closet</p>
+    </li>
+  </template>
+  <template x-if="$store.currentLocation.health_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <img src="{% static "dist/img/icons/health.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+      <p x-text="$store.currentLocation.health_services.services.reduce((r,i)=> r + i.name + ' • ','').slice(0,-3)">Q Clinic</p>
+    </li>
+  </template>
+  <template x-if="$store.currentLocation.personal_care_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <img src="{% static "dist/img/icons/shower.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+      <p x-text="$store.currentLocation.personal_care_services.services.reduce((r,i)=> r + i.name + ' • ','').slice(0,-3)">
+        Laundry, Shower for Overnight Guests
+      </p>
+    </li>
+  </template>
+  <template x-if="$store.currentLocation.other_services.services.length">
+    <li class="flex space-x-2 text-sm text-dark">
+      <img src="{% static "dist/img/icons/dots.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+      <p x-text="$store.currentLocation.other_services.services.reduce((r,i)=> r + i.name + ' • ','').slice(0,-3)">
+        Laundry, Shower for Overnight Guests
+      </p>
+    </li>
+  </template>
+</ul>
+<div class="mt-3">
+  <a
+    :href="$store.currentLocation.slug"
+    @click.prevent="$store.detailsView = true; updateUrlSlug()"
+    class="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
+  >
+    <span>More Details</span>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      class="w-5 h-5"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </a>
+</div>
+</div>

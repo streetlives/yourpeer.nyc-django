@@ -1,0 +1,647 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% load static %} 
+{% load remove_query_param %}
+<!-- Filters Popup -->
+<!--               x-transition:enter="transform transition ease-in-out duration-200"
+              x-transition:enter-start="translate-y-full"
+              x-transition:enter-end="translate-y-0"
+              x-transition:leave="transform transition ease-in-out duration-200"
+              x-transition:leave-start="translate-y-0"
+              x-transition:leave-end="translate-y-full" -->
+            <div
+              class="bg-white fixed md:absolute inset-x-0 top-[49.6px] md:top-0 bottom-0 md:h-full z-40 flex flex-col md:overflow-hidden"
+              id="filtersPopup"
+              style="display: none;"
+            >
+              <div class="flex items-center p-4 justify-between">
+                <div class="text-dark text-lg font-medium">Filters</div>
+                <button class="inline-block" id="filtersPopupCloseButton">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div class="flex-1 px-4 overflow-y-scroll scrollbar-hide py-5">
+                <!-- Service type -->
+                <fieldset>
+                  <legend class="text-xs font-semibold leading-6 text-dark">
+                    Service type
+                  </legend>
+
+                  <div class="mt-2 grid gap-2 sm:gap-5 grid-cols-3">
+                    <a
+                      class="{% if 'shelter' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{%url 'map'%}?shelter=1"
+                    >
+                    {% if 'shelter' not in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/home-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      {% if 'shelter' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-home-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Shelter & Housing
+                      </div>
+                    </a>
+                    <a
+                      class="{% if 'food' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{% url 'map'%}?food=1"
+                    >
+
+                    {% if 'food' not in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/food-icon-2.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                    {% endif %}
+
+                    {% if 'food' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-food-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Food
+                      </div>
+                    </a>
+                    <a
+                      class="{% if 'clothing' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{% url 'map'%}?clothing=1"
+                    >
+                    {% if 'clothing' not in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/clothing-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      {% if 'clothing' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-clothing-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Clothing
+                      </div>
+                    </a>
+                    <a
+                      class="{% if 'personal_care' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{% url 'map'%}?personal_care=1"
+                    >
+                      
+                      {% if 'personal_care' not in request.GET %}  
+                      <img
+                        src="{% static 'dist/img/icons/personal-care-2.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      {% if 'personal_care' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-personal-care.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Personal care
+                      </div>
+                    </a>
+                    <a
+                      class="{% if 'health' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{% url 'map'%}?health=1"
+                    >
+                    {% if 'health' not in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/health-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      {% if 'health' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-health-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Health
+                      </div>
+                    </a>
+                    <a
+                      class="{% if 'other' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded"
+                      href="{% url 'map'%}?other=1"
+                    >
+                      
+                      {% if 'other' not in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/dots-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      {% if 'other' in request.GET %}
+                      <img
+                        src="{% static 'dist/img/icons/active-dots-icon.svg' %}"
+                        class="max-h-8 w-8 h-8 object-contain"
+                        alt=""
+                      />
+                      {% endif %}
+                      <div class="text-center text-xs text-dark mt-3 truncate">
+                        Other
+                      </div>
+                    </a>
+                  </div>
+                </fieldset>
+
+                <!-- Opening hours -->
+                <fieldset class="mt-6">
+                  <legend class="text-xs font-semibold leading-6 text-dark">
+                    Opening hours
+                  </legend>
+
+                  <div
+                    class="{% if 'open_now' not in request.GET %} divide-x-2 divide-gray-300 {% endif %} mt-2 flex w-full"
+                  >
+
+                  {% if 'open_now' in request.GET %}
+                    {% with updated_query=request.GET|remove_query_param:"open_now" %}
+                      <a
+                        class="{% if 'open_now' not in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 border-r-transparent {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none"
+                        href="?{{ updated_query }}"
+                      >
+                        <input
+                          type="radio"
+                          x-model="$store.filters.openingHours"
+                          name="openingHours"
+                          value="any"
+                          class="sr-only"
+                          aria-labelledby="openingHours-0-label"
+                          aria-describedby="openingHours-0-description-0 openingHours-0-description-1"
+                        />
+                        Any
+                      </a>
+                      {% endwith %}
+                    {% else %}
+                      <a
+                        class="{% if 'open_now' not in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 border-r-transparent {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none"
+                        href="?{{ request.GET.urlencode }}"
+                      >
+                        <input
+                          type="radio"
+                          x-model="$store.filters.openingHours"
+                          name="openingHours"
+                          value="any"
+                          class="sr-only"
+                          aria-labelledby="openingHours-0-label"
+                          aria-describedby="openingHours-0-description-0 openingHours-0-description-1"
+                        />
+                        Any
+                      </a>
+                    {% endif %}
+
+                    {% with updated_query=request.GET|update_query_param:"open_now=1" %}
+                      <a
+                        class="{% if 'open_now' in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %} border text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer py-2 px-5 rounded-r-lg focus:outline-none"
+                        href="?{{ updated_query }}"
+                      >
+                        <input
+                          type="radio"
+                          x-model="$store.filters.openingHours"
+                          name="openingHours"
+                          value="open-now"
+                          class="sr-only"
+                          aria-labelledby="openingHours-0-label"
+                          aria-describedby="openingHours-0-description-0 openingHours-0-description-1"
+                        />
+                        Open now
+                      </a>
+                      {% endwith %}
+                  </div>
+                </fieldset>
+
+                <!-- shelters-housing type -->
+                  {% if 'shelter' in request.GET %}
+                  <fieldset class="mt-6">
+                    <legend class="text-xs font-semibold leading-6 text-dark">
+                      Shelter & Housing type
+                    </legend>
+
+                    <div
+                      class="{% if 'shelter_type' not in request.GET %} divide-x-2 divide-gray-300 {% endif %} mt-2 flex w-full"
+                    >
+                      <!--
+                      Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-r-transparent"
+                    -->
+                    {% if 'shelter_type' in request.GET %}
+                      {% with updated_query=request.GET|remove_query_param:"shelter_type" %}
+                        <a
+                          class="bg-white border-gray-300 border-r-transparent text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.accommodationType"
+                            name="accommodationType"
+                            value="any"
+                            class="sr-only"
+                            aria-labelledby="accommodationType-0-label"
+                            aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1"
+                          />
+                          Any
+                        </a>
+                        {% endwith %}
+                      {% else %}
+                        <a
+                          class="bg-primary border-black text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center"
+                          href="?{{ request.GET.urlencode }}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.accommodationType"
+                            name="accommodationType"
+                            value="any"
+                            class="sr-only"
+                            aria-labelledby="accommodationType-0-label"
+                            aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1"
+                          />
+                          Any
+                        </a>
+                      {% endif %}
+                      <!--
+                      Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 "
+                    -->
+                      {% with updated_query=request.GET|update_query_param:"shelter_type=single_adult" %}
+                        <a
+                          class="{% if request.GET.shelter_type == 'single_adult' %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.accommodationType"
+                            name="accommodationType"
+                            value="single-adult"
+                            class="sr-only"
+                            aria-labelledby="accommodationType-0-label"
+                            aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1"
+                          />
+                          Single Adult
+                        </a>
+                      {% endwith %}
+                      
+                      {% with updated_query=request.GET|update_query_param:"shelter_type=families" %}
+                        <a
+                          class="{% if request.GET.shelter_type == 'families' %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-r-lg focus:outline-none text-center"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.accommodationType"
+                            name="accommodationType"
+                            value="families"
+                            class="sr-only"
+                            aria-labelledby="accommodationType-0-label"
+                            aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1"
+                          />
+                          Families
+                        </a>
+                      {% endwith %}
+                    </div>
+                  </fieldset>
+                  {% endif %}
+
+                <!-- Food type -->
+                {% if 'food' in request.GET %}
+                  <fieldset class="mt-6">
+                    <legend class="text-xs font-semibold leading-6 text-dark">
+                      Food type
+                    </legend>
+
+                    <div
+                      class=" {% if 'food_type' not in request.GET %} divide-x-2 divide-gray-300 {% endif %} mt-2 flex w-full"
+                    >
+                      {% if 'food_type' in request.GET %}
+                        {% with updated_query=request.GET|remove_query_param:"food_type" %}
+                          <a
+                            class="bg-white border-gray-300 border-r-transparent text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center"
+                            href="?{{updated_query}}"
+                          >
+
+                            Any
+                          </a>
+                      {% endwith %}
+                      {% else %}
+                        <a
+                          class="bg-primary border-black text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center"
+                          href="?{{ request.GET.urlencode }}"
+                        >
+                          Any
+                        </a>
+                      {% endif %}
+                      <!--
+                      Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 "
+                    -->
+                      {% with updated_query=request.GET|update_query_param:"food_type=soup_kitchen" %}
+                        <a
+                          class=" {% if request.GET.food_type == 'soup_kitchen' %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 focus:outline-none text-center"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.foodType"
+                            name="soup-kitchen"
+                            value="soup-kitchen"
+                            class="sr-only"
+                            aria-labelledby="foodType-0-label"
+                            aria-describedby="foodType-0-description-0 foodType-0-description-1"
+                          />
+                          Soup Kitchen
+                        </a>
+                      {% endwith %}
+                      <!--
+                      Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-l-transparent"
+                    -->
+                      {% with updated_query=request.GET|update_query_param:"food_type=pantry" %}
+                        <a
+                          class="{% if request.GET.food_type == 'pantry' %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 rounded-r-lg focus:outline-none text-center"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="radio"
+                            x-model="$store.filters.foodType"
+                            name="food-pantry"
+                            value="food-pantry"
+                            class="sr-only"
+                            aria-labelledby="foodType-0-label"
+                            aria-describedby="foodType-0-description-0 foodType-0-description-1"
+                          />
+                          Food Pantry
+                        </a>
+                      {% endwith %}
+                    </div>
+                  </fieldset>
+                  {% endif %}
+
+                <!-- Clothing type -->
+                {% if 'clothing' in request.GET %}
+                  <div>
+                    <fieldset class="mt-6">
+                      <legend class="text-xs font-semibold leading-6 text-dark">
+                        Clothing type
+                      </legend>
+                      <div
+                        class=" {% if 'clothing_type' not in request.GET %} divide-x-2 divide-gray-300 {% endif %} mt-2 flex w-full"
+                      >
+                        {% if 'clothing_type' in request.GET %}
+                          {% with updated_query=request.GET|remove_query_param:"clothing_type" %}
+                            <a
+                              class="bg-white border-gray-300 border-r-transparent text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 rounded-l-lg focus:outline-none"
+                              href="?{{updated_query}}"
+                            >
+                              Any
+                            </a>
+                            {% endwith %}
+                          {% else %}
+                          <a
+                            class="bg-primary border-dark text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 rounded-l-lg focus:outline-none"
+                            href="?{{ request.GET.urlencode }}"
+                          >
+                            Any
+                          </a>
+                          {% endif %}
+
+                          {% with updated_query=request.GET|update_query_param:"clothing_type=casual" %}
+                          <a
+                            class="{% if request.GET.clothing_type == 'casual' %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 focus:outline-none"
+                            href="?{{updated_query}}"
+                          >
+                            Casual
+                          </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|update_query_param:"clothing_type=professional" %}
+                          <a
+                            class="{% if request.GET.clothing_type == 'professional' %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %} text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 rounded-r-lg focus:outline-none"
+                            href="?{{updated_query}}"
+                          >
+                            Professional
+                          </a>
+                        {% endwith %}
+                      </div>
+                    </fieldset>
+                  </div>
+                {% endif %}
+                <!-- Amenities -->
+                  {% if 'personal_care' in request.GET %}
+                  <div>
+                    <fieldset class="mt-6">
+                      <legend class="text-sm font-semibold leading-6 text-dark">
+                        Amenities
+                      </legend>
+                      <div class="mt-2 flex w-full flex-col space-y-4 ml-1">
+                        {% with updated_query=request.GET|add_or_remove_query_param:"personal_care_types:toiletries"  %}
+                        <a
+                          class="text-xs relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'toiletries' in request.GET.personal_care_types %} checked {% endif %}
+                            name="Toiletries"
+                            value="Toiletries"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5">Toiletries</span>
+                        </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"personal_care_types:restrooms"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'restrooms' in request.GET.personal_care_types %} checked {% endif %}
+                            name="Restrooms"
+                            value="Restrooms"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5">Restrooms</span>
+                        </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"personal_care_types:showers"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'showers' in request.GET.personal_care_types %} checked {% endif %}
+                            name="Shower"
+                            value="Shower"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5">Shower</span>
+                        </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"personal_care_types:laundry"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'laundry' in request.GET.personal_care_types %} checked {% endif %}
+                            name="Laundry"
+                            value="Laundry"
+                            class="w-5 h-5  pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5">Laundry</span>
+                        </a>
+                        {% endwith %}
+
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"personal_care_types:haircuts"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'haircuts' in request.GET.personal_care_types %} checked {% endif %}
+                            name="Haircut"
+                            value="Haircut"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5">Haircut</span>
+                        </a>
+                        {% endwith %}
+                      </div>
+                    </fieldset>
+                  </div>
+                  {% endif %}
+
+                <!-- Requirement typ -->
+                  {% if 'clothing' in request.GET %}
+                  <div>
+                    <fieldset class="mt-6">
+                      <legend class="text-xs font-semibold leading-6 text-dark">
+                        Requirement type
+                      </legend>
+                      <div class="mt-2 flex w-full flex-col space-y-4 ml-1">
+                        {% with updated_query=request.GET|add_or_remove_query_param:"clothing_requirement_types:no_requirement"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href='?{{updated_query}}'
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'no_requirement' in request.GET.clothing_requirement_types %} checked {% endif %}
+                            name="requirementType"
+                            value="no-requirements"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <span class="text-xs text-dark mt-0.5"
+                            >No requirements</span
+                          >
+                        </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"clothing_requirement_types:referral_letter"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'referral_letter' in request.GET.clothing_requirement_types %} checked {% endif %}
+                            name="requirementType"
+                            value="referral-letter"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <div class="text-xs text-dark mt-0.5">
+                            <div>Referral letter</div>
+                            <p class="text-gray-600">
+                              You must bring a letter from another service
+                              provider stating that you require this service.
+                            </p>
+                          </div>
+                        </a>
+                        {% endwith %}
+
+                        {% with updated_query=request.GET|add_or_remove_query_param:"clothing_requirement_types:registered_client"  %}
+                        <a
+                          class="relative flex-1 flex space-x-2 cursor-pointer"
+                          href="?{{updated_query}}"
+                        >
+                          <input
+                            type="checkbox"
+                            {% if 'registered_client' in request.GET.clothing_requirement_types %} checked {% endif %}
+                            name="requirementType"
+                            value="registered-client-only"
+                            class="w-5 h-5 pointer-events-none text-primary !border-dark !border ring-dark focus:ring-dark"
+                          />
+                          <div class="text-xs text-dark mt-0.5">
+                            <div>Registered client only</div>
+                            <p class="text-gray-600">
+                              You must be a registered client of their
+                              organization to access their services.
+                            </p>
+                          </div>
+                        </a>
+                        {% endwith %}
+                      </div>
+                    </fieldset>
+                  </div>
+                  {% endif %}
+              </div>
+
+              <div class="p-4 flex items-center gap-x-4">
+                <a
+                  class="outline-button block flex-1 flex-shrink-0"
+                  href="{% url 'map' %}"
+                >
+                  Clear all
+                </a>
+                <button
+                  class="primary-button flex-1 block flex-shrink-0 px-5 truncate"
+                  id="showResultButton"
+                >
+                  show <span x-text="$store.locations.currentLocations.length"></span> results
+                </button>
+              </div>
+            </div>

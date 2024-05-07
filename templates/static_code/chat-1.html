@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Peer NYC</title>
+
+    <link rel="stylesheet" href="./dist/main.css" />
+      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Include Swiper slider -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
+  </head>
+  <body>
+    <div
+      class="flex flex-col h-screen max-w-sm mx-auto overflow-hidden relative"
+      x-data="{show: false}"
+    >
+      <!-- Overlay Nav -->
+      <div
+        x-show="show"
+        style="display: none"
+        class="bg-dark absolute z-10 w-full h-full inset-0"
+        x-transition.opacity
+      >
+        <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center">
+            <button
+              class="hover:cursor-pointer text-white hover:text-gray-300 inline-block transition"
+              @click="show = !show"
+            >
+              <!-- Heroicon: 'x-mark' -->
+              <svg
+                x-show="show"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="text-sm text-gray-200">
+            <span class="text-white font-bold">YourPeer</span>NYC
+          </div>
+          <button
+            class="inline-flex items-center text-[10px] sm:text-xs uppercase font-medium text-danger space-x-1"
+          >
+            <span class="inline-block">Quick Exit</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="text-white px-5 py-10 flex flex-col">
+          <h4 class="text-white font-semibold mb-4 text-sm">
+            Explore Services
+          </h4>
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Find Services Nearby</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Browse all Services</a
+          >
+          <h4 class="font-semibold my-6 text-sm">
+            <a
+              href="#"
+              class="underline text-white hover:no-underline inline-block"
+              >Provider Portal</a
+            >
+          </h4>
+          <h4 class="text-white font-semibold mb-4 text-sm">Resources</h4>
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Articles</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Events and webinars</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Glossary of terms</a
+          >
+          <h4 class="text-white font-semibold mb-4 mt-6 text-sm">About</h4>
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >About this website</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Careers</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >Partners</a
+          >
+          <a
+            href="#"
+            class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block"
+            >FAQ</a
+          >
+        </div>
+      </div>
+      <!-- header -->
+      <nav
+        class="flex items-center justify-between px-5 py-4 bg-white shadow-sm"
+      >
+        <div class="flex items-center">
+          <button
+            class="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
+            @click="show = !show"
+          >
+            <!-- Heroicon -- 'bars-3' -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x-show="!show"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+
+          <div class="text-sm ml-3">
+            <span class="text-black font-bold">YourPeer</span>NYC
+          </div>
+        </div>
+        <a
+          href="/"
+          class="inline-flex items-center text-[10px] sm:text-xs uppercase font-medium text-gray-800 space-x-1"
+        >
+          <span class="inline-block">End Chat</span>
+          <!-- Hero icon: X-mark -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </a>
+      </nav>
+
+      <main class="flex-1 bg-[#F0F0F0]">
+        <div class="px-5 py-6 max-h-full h-[83vh] flex flex-col overflow-y-auto">
+          <div class="flex-1">
+            <p class="text-gray-600 text-xs">
+              You are connected with smart bot assistant
+            </p>
+            <div class="flex space-x-3 mt-5">
+              <div class="text-white bg-gray-500 rounded-full w-8 h-8 overflow-hidden inline-flex items-center justify-center">
+                <img src="./dist/img/icons/chat-icon-alt.svg" class="w-4 object-contain max-h-4" alt="">
+              </div>
+              <div>
+                <p class="max-w-[240px] w-fit  bg-white rounded text-sm text-gray-800 p-3 mb-2">
+                  Hi, we’re here to help guide you through this service
+                </p>
+                <p class="max-w-[240px] w-fit  bg-white rounded text-sm text-gray-800 p-3 mb-2">
+                  What can I help you with?
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap justify-center mt-3">
+            <div class="bg-white cursor-pointer rounded-md text-sm text-gray-800 py-2 px-5 border border-primary m-1">
+              A place to sleep tonight 
+            </div>
+            <div class="bg-white cursor-pointer rounded-md text-sm text-gray-800 py-2 px-5 border border-primary m-1">
+              A job
+            </div>
+            <div class="bg-white cursor-pointer rounded-md text-sm text-gray-800 py-2 px-5 border border-primary m-1">
+              A hot shower
+            </div>
+            <div class="bg-white cursor-pointer rounded-md text-sm text-gray-800 py-2 px-5 border border-primary m-1">
+              Something to eat
+            </div>
+            <div class="bg-white cursor-pointer rounded-md text-sm text-gray-800 py-2 px-5 border border-primary m-1">
+              Help with finding housing
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <form action="#" class="flex items-center border-t border-gray-200">
+        <div class="flex-1">
+          <input
+            type="text"
+            class="py-5 w-full px-6 bg-white text-gray-900 border-none focus:outline-none focus:border-none focus:ring-0 block"
+            placeholder="Or tell us about what you need..."
+          />
+        </div>
+
+        <div class="px-6">
+          <button class="text-gray-950">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+            </svg>            
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Include Swiper slider -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  </body>
+</html>

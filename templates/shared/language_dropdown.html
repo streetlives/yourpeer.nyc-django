@@ -1,0 +1,150 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<div class="flex justify-center" translate="no">
+  <div
+    x-data="{
+            open: false,
+            language: 'English',
+            get_current_lang() {
+                var keyValue = document.cookie.match('(^|;) ?googtrans=([^;]*)(;|$)');
+                return keyValue ? keyValue[2].split('/')[2] : null;
+            },
+            onChange(l) {
+                if (l == 'zh-CN') {
+                    this.language = '简体中文'; 
+                } else if (l == 'es') {
+                    this.language = 'Español'; 
+                } else {
+                    this.language = 'English'; 
+                }
+                this.open = false;
+                if (!this.get_current_lang()) {
+                    document.querySelector('.gt_selector').click();
+                }
+                doGTranslate('en|'+l); 
+                updateTranslations(l);
+            },
+            init() {
+                    var current_lang = this.get_current_lang();
+                    updateTranslations(current_lang);
+                    if (current_lang == 'es') {
+                        this.language = 'Español'
+                    } else if(current_lang == 'zh-CN') {
+                        this.language = '简体中文'
+                    } else {
+                        this.language = 'English'
+                    }
+
+                    if (!window.gt_translate_script) {
+                      window.gt_translate_script = document.createElement('script');
+                      gt_translate_script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2';
+                      document.body.appendChild(gt_translate_script);
+                  }
+            },
+            toggle() {
+                if (this.open) {
+                    return this.close()
+                }
+
+                this.$refs.button.focus()
+
+                this.open = true
+            },
+            close(focusAfter) {
+                if (! this.open) return
+
+                this.open = false
+
+                focusAfter && focusAfter.focus()
+            }
+        }"
+    x-on:keydown.escape.prevent.stop="close($refs.button)"
+    x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
+    x-id="['dropdown-button']"
+    class="relative"
+  >
+    <!-- Button -->
+    <button
+      x-ref="button"
+      x-on:click="toggle()"
+      :aria-expanded="open"
+      :aria-controls="$id('dropdown-button')"
+      type="button"
+      class="flex items-center font-medium text-dark gap-2 hover:bg-black/10 py-1 px-2 text-[13px] rounded-md"
+    >
+      <span x-text="language">English</span>
+
+      <!-- Heroicon: chevron-down -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-4 w-4 text-dark"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
+
+    <!-- Panel -->
+    <div
+      x-ref="panel"
+      x-show="open"
+      x-transition.origin.top.left
+      x-on:click.outside="close($refs.button)"
+      :id="$id('dropdown-button')"
+      style="display: none"
+      class="absolute left-0 mt-2 w-full rounded-md bg-white shadow-md"
+    >
+      <a
+        href="#"
+        class="flex items-center gap-2 w-full first-of-type:rounded-t-md last-of-type:rounded-b-md px-2 py-1 text-left text-sm hover:bg-neutral-100 disabled:text-gray-500"
+        :class="{'font-medium': language == 'English'}"
+        @click.prevent="onChange('en')"
+      >
+        English
+      </a>
+
+      <a
+        href="#"
+        class="flex items-center gap-2 w-full first-of-type:rounded-t-md last-of-type:rounded-b-md px-2 py-1 text-left text-sm hover:bg-neutral-100 disabled:text-gray-500"
+        :class="{'font-medium': language == 'Español'}"
+        @click.prevent="onChange('es')"
+      >
+        Español
+      </a>
+      <a
+        href="#"
+        class="flex items-center gap-2 w-full first-of-type:rounded-t-md last-of-type:rounded-b-md px-2 py-1 text-left text-sm hover:bg-neutral-100 disabled:text-gray-500"
+        @click.prevent="onChange('zh-CN')"
+        :class="{'font-medium': language == '简体中文'}"
+      >
+        简体中文
+      </a>
+      <a
+        href="#"
+        class="flex items-center gap-2 w-full first-of-type:rounded-t-md last-of-type:rounded-b-md px-2 py-1 text-left text-sm hover:bg-neutral-100 disabled:text-gray-500"
+        @click.prevent="onChange('bn')"
+        :class="{'font-medium': language == '简体中文'}"
+      >
+        বাংলা
+      </a>
+      <a
+        href="#"
+        class="flex items-center gap-2 w-full first-of-type:rounded-t-md last-of-type:rounded-b-md px-2 py-1 text-left text-sm hover:bg-neutral-100 disabled:text-gray-500"
+        @click.prevent="onChange('fr')"
+        :class="{'font-medium': language == '简体中文'}"
+      >
+        français
+      </a>
+    </div>
+  </div>
+</div>

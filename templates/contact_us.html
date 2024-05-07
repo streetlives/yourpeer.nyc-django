@@ -1,0 +1,47 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% extends "_base.html" %} {% load static %} {% block title %}Feedback - Contact Us | Your Peer{% endblock %}
+{% block meta_desc %}Contact our team at YourPeer for any addtional information about our platform or resources.{% endblock %}
+{% block content %}
+
+<div class="min-h-screen h-screen flex flex-col">
+    <!-- Off canvas Menu -->
+    {% include 'shared/offcanvas_menu.html' %}
+
+    <!-- header -->
+    {% include 'shared/navbar.html' %}
+
+  <section class="bg-white py-12 pt-28 lg:pt-32 lg:py-20">
+    <div class="px-5 max-w-xl mx-auto">
+      <div class="flex flex-col items-center justify-center">
+        <h1 class="text-black text-2xl md:text-4xl font-extrabold mb-6 text-center">
+          Contact us
+        </h1>
+        <p class="text-dark text-center mb-6">
+          Thank you for your interest in YourPeer. 
+        </p>
+        <p class="text-dark text-center mb-6">
+          If you have general questions or feedback for us, please email us at <a href="mailto:yourpeer@streetlives.nyc" class="link">yourpeer@streetlives.nyc</a>.
+        </p>
+        <p class="text-dark text-center mb-6">
+          If are an organization or individual interested in working with us please email us at <a href="mailto:yourpeerpartner@streetlives.nyc" class="link">yourpeerpartner@streetlives.nyc</a>.
+        </p>
+
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="bg-black px-5 py-8">
+    {% include 'shared/footer_innerhtml.html' %}
+  </footer>
+</div>
+
+<!-- Include Swiper slider -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+{% endblock %}

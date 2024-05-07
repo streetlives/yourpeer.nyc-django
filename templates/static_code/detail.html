@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Peer NYC</title>
+
+    <link rel="stylesheet" href="./dist/main.css" />
+
+    <!-- Alpine Plugins -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"
+    ></script>
+
+      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Include Swiper slider -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
+
+    <!-- mapbox -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="flex flex-col w-full h-screen">
+      <div class="hidden md:block" x-data="{offCanvasMenu: false}">
+        <!-- Off canvas Menu -->
+        <div
+          x-show="offCanvasMenu"
+          x-cloak
+          class="relative z-50"
+          aria-labelledby="slide-over-title"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Background backdrop, show/hide based on slide-over state. -->
+          <div class="fixed inset-0 bg-black/40" x-show="offCanvasMenu"></div>
+
+          <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+              <div
+                class="pointer-events-none fixed inset-y-0 left-0 flex max-w-full pr-10"
+              >
+                <div
+                  class="pointer-events-auto w-screen max-w-xs"
+                  x-show="offCanvasMenu"
+                  @click.outside="offCanvasMenu = false"
+                  x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+                  x-transition:enter-start="-translate-x-full"
+                  x-transition:enter-end="-translate-x-0"
+                  x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+                  x-transition:leave-start="-translate-x-0"
+                  x-transition:leave-end="-translate-x-full"
+                >
+                  <div
+                    class="flex h-full flex-col overflow-y-auto bg-primary py-6 shadow-xl"
+                  >
+                    <div class="px-4 sm:px-6">
+                      <div class="flex items-start justify-start">
+                        <div class="flex h-7 items-center">
+                          <button
+                            type="button"
+                            class="text-gray-900"
+                            @click="offCanvasMenu = false"
+                          >
+                            <span class="sr-only">Close panel</span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              class="w-6 h-6"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                      <div class="pt-12 flex flex-col space-y-6">
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Home</a
+                        >
+                        <a
+                          href="./about-us.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >About Us</a
+                        >
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Donate</a
+                        >
+                        <a
+                          href="./privacy-policy.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Privacy Policy</a
+                        >
+                        <a
+                          href="./terms-of-use.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Terms of use</a
+                        >
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Leave Feedback</a
+                        >
+                      </div>
+                    </div>
+                    <div class="px-4 sm:px-6">
+                      <div class="flex space-x-7 mb-5">
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M12.15 23.25H1.75C1.19772 23.25 0.75 22.8023 0.75 22.25V1.75C0.75 1.19772 1.19772 0.75 1.75 0.75H22.25C22.8023 0.75 23.25 1.19772 23.25 1.75V22.25C23.25 22.8023 22.8023 23.25 22.25 23.25H16.15V14.75H18.71C18.9643 14.7518 19.1795 14.5625 19.21 14.31L19.59 11.31C19.6072 11.1673 19.5623 11.0242 19.4666 10.917C19.3709 10.8098 19.2337 10.749 19.09 10.75H16.15V9.69C16.15 9.24178 16.3281 8.81193 16.645 8.49499C16.9619 8.17805 17.3918 8 17.84 8H19.65C19.9261 8 20.15 7.77614 20.15 7.5V4.5C20.15 4.22386 19.9261 4 19.65 4H17.84C14.6975 4 12.15 6.5475 12.15 9.69V10.75H9.65C9.37386 10.75 9.15 10.9739 9.15 11.25V14.25C9.15 14.5261 9.37386 14.75 9.65 14.75H12.15V23.25Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M23.1801 6.71006L21.0801 5.81006L22.1801 3.41006L19.6201 4.26006C18.8047 3.49999 17.7347 3.072 16.6201 3.06006C14.1371 3.06556 12.1256 5.07706 12.1201 7.56006V8.56006C8.58008 9.29006 5.49008 7.36006 2.62008 4.06006C2.12008 6.72673 2.62008 8.72673 4.12008 10.0601L0.830078 9.56006C1.0924 11.746 2.88223 13.4306 5.08008 13.5601L2.33008 14.5601C3.33008 16.5601 5.15008 16.8701 7.58008 17.0601C5.5939 18.4147 3.23365 19.1141 0.830078 19.0601C13.5901 24.7301 21.0801 16.4001 21.0801 9.06006V8.23006L23.1801 6.71006Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="25"
+                            height="24"
+                            viewBox="0 0 25 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <rect
+                              x="1.74023"
+                              y="0.75"
+                              width="22.5"
+                              height="22.5"
+                              rx="6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M12.9902 17C15.7517 17 17.9902 14.7614 17.9902 12C17.9902 9.23858 15.7517 7 12.9902 7C10.2288 7 7.99023 9.23858 7.99023 12C7.99023 14.7614 10.2288 17 12.9902 17Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M20.3403 5.1499C20.3403 5.42604 20.1165 5.6499 19.8403 5.6499C19.5642 5.6499 19.3403 5.42604 19.3403 5.1499"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M19.3403 5.1499C19.3403 4.87376 19.5642 4.6499 19.8403 4.6499C20.1165 4.6499 20.3403 4.87376 20.3403 5.1499"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+                      <p class="text-sm text-black">&copy; Streetlives.nyc</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="shadow relative z-10 bg-white w-full flex flex-col">
+          <!-- header -->
+          <nav
+            class="flex space-x-3 items-center justify-between px-5 py-2 md:py-3"
+          >
+            <div class="flex items-center">
+              <button
+                class="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
+                @click="offCanvasMenu = true"
+              >
+                <!-- Heroicon -- 'bars-3' -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <a href="/" class="text-sm ml-3 leading-3 hidden sm:inline-block">
+                <span class="text-black font-bold">YourPeer</span>NYC
+              </a>
+            </div>
+            <div class="flex-grow md:flex-none">
+              <div
+                class="flex items-center rounded py-1 px-2 sm:px-3 md:p-3 border border-gray-300 w-44 sm:w-64 md:w-96"
+              >
+                <div class="flex items-center space-x-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    />
+                  </svg>
+                </div>
+                <div class="md:flex items-center ml-2">
+                  <input
+                    class="text-xs md:pl-3 sm:text-sm text-gray-600 w-full border-none p-0 focus:ring-0 block mt-0"
+                    type="text"
+                    placeholder="All Services"
+                  />
+                </div>
+              </div>
+            </div>
+            <a
+              href="./map.html"
+              class="inline-flex ml-auto items-center text-[10px] sm:text-xs uppercase font-medium text-black space-x-1"
+              _="on click goBackFromDetails(event)"
+            >
+              <span class="inline-block">Quick Exit</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-5 h-5 flex-shrink-0"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <main class="flex-1 overflow-hidden flex flex-col md:flex-row">
+        <div
+          class="w-full md:w-1/2 lg:w-1/3 overflow-y-auto md:h-full relative"
+          id="left_panel"
+        >
+          <div class="py-5 bg-white">
+            <div class="px-6">
+              <div class="mb-5 flex justify-between items-center">
+                <a
+                  href="/map.html"
+                  class="text-dark hover:text-black transition"
+                  _="on click goBackFromDetails(event)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                    />
+                  </svg>
+                </a>
+
+                <a
+                  href="./map.html"
+                  class="md:hidden inline-flex ml-auto items-center text-[10px] sm:text-xs uppercase font-medium text-black space-x-1"
+                  _="on click goBackFromDetails(event)"
+                >
+                  <span class="inline-block">Quick Exit</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="w-5 h-5 flex-shrink-0"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </a>
+              </div>
+              <h3 class="text-dark text-lg sm:text-xl font-medium mt-3">
+                Lenox Hill Neighborhood House - Senior Adult Center
+              </h3>
+              <div class="mt-3">
+                <p class="text-xs text-gray-500 mb-1">Saint Peter's Church</p>
+                <p class="flex items-center space-x-1 text-xs text-gray-500">
+                  <span>Central Harlem</span>
+                  <span class="text-green-600"> ✓ Verified 3 days ago</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- carousel -->
+            <div
+              x-data="{ swiper: null }"
+              x-init="swiper = new Swiper($refs.container, {
+                direction: 'horizontal',
+                slidesPerView: 'auto',
+                spaceBetween: 10,
+                grabCursor: true,
+                navigation: {
+                  nextEl: '.swiper-button-next',
+                  prevEl: '.swiper-button-prev',
+                },
+              })"
+              x-ref="container"
+              class="swiper w-full h-auto mt-5"
+            >
+              <div class="swiper-wrapper">
+                <div class="swiper-slide !w-2/5">
+                  <img
+                    src="./dist/img/details-1.png"
+                    class="h-52 w-full object-cover object-center"
+                    alt=""
+                  />
+                </div>
+                <div class="swiper-slide !w-2/5">
+                  <img
+                    src="./dist/img/detail-2.png"
+                    class="h-52 w-full object-cover object-center"
+                    alt=""
+                  />
+                </div>
+                <div class="swiper-slide !w-2/5">
+                  <img
+                    src="./dist/img/map-image.png"
+                    class="h-52 w-full object-cover object-center"
+                    alt=""
+                  />
+                </div>
+              </div>
+              <div
+                class="swiper-button-next !w-8 !h-8 after:!text-sm rounded-full !text-black !border-black !border-2 !bg-white"
+              ></div>
+              <div
+                class="swiper-button-prev !w-8 !h-8 after:!text-sm rounded-full !text-black !border-black !border-2 !bg-white"
+              ></div>
+            </div>
+
+            <div class="px-6 mt-5">
+              <ul class="flex flex-col space-y-3">
+                <li class="flex space-x-3">
+                  <img
+                    src="./dist/img/icons/location.svg"
+                    class="flex-shrink-0 w-5 h-5 max-h-5"
+                    alt=""
+                  />
+                  <p class="text-dark text-sm ml-2">
+                    321 West 125th Street, Central Harlem <br />
+                    New York, 10027
+                  </p>
+                </li>
+                <li class="flex space-x-3">
+                  <img
+                    src="./dist/img/icons/phone.svg"
+                    class="flex-shrink-0 w-5 h-5 max-h-5"
+                    alt=""
+                  />
+                  <p class="text-dark text-sm ml-2">212.206.0574</p>
+                </li>
+                <li class="flex space-x-3">
+                  <img
+                    src="./dist/img/icons/cursor.svg"
+                    class="flex-shrink-0 w-5 h-5 max-h-5"
+                    alt=""
+                  />
+                  <p class="text-dark text-sm ml-2">aliforneycenter.org</p>
+                </li>
+              </ul>
+              <div class="mt-5 flex gap-4">
+                <button
+                  class="text-xs flex-1 flex items-center justify-center py-1 px-5 space-x-2 text-dark transition hover:text-black hover:border-black border border-gray-300 rounded-3xl"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                    />
+                  </svg>
+                  <span>Leave feedback</span>
+                </button>
+                <button
+                  class="text-xs flex-1 flex items-center justify-center py-1 px-5 space-x-2 text-dark transition hover:text-black hover:border-black border border-gray-300 rounded-3xl"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                    />
+                  </svg>
+                  <span>Report Issue</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 py-5 flex flex-col gap-y-4">
+            <!-- Personal care -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/personal-care-icon.png"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">
+                  Personal care
+                </h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">Laundry</h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Shower for Overnight Guests
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        This is only available for overnight guests.
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accommodations -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/home-icon.svg"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">
+                  Accommodations
+                </h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Intake for Overnight Stay
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Food -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/food-icon.png"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">Food</h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">Food Pantry</h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">Lunch</h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Clothing -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/clothing-icon.png"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">
+                  Clothing
+                </h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Clothes Closet
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Health -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/health-icon.png"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">Health</h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">Q Clinic</h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other Services -->
+            <div class="bg-white rounded-lg">
+              <div
+                class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+              >
+                <img
+                  src="./dist/img/icons/dot-icon.png"
+                  class="flex-shrink-0 max-h-6 w-6 h-6"
+                  alt=""
+                />
+                <h3 class="text-dark text-lg font-medium leading-3">
+                  Other Services
+                </h3>
+              </div>
+
+              <div class="flex flex-col divide-y divide-gray-200">
+                <!-- items -->
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Member services
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Social services
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Free Escort to Medical Appointments
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-start px-3 py-3" x-data="{show: false}">
+                  <button class="flex-shrink-0" @click="show = !show">
+                    <img
+                      src="./dist/img/icons/arrow-down.svg"
+                      class="w-7 h-7 object-contain max-h-7 -rotate-90 transition"
+                      :class="[show ? 'rotate-0' ? '-rotate-90']"
+                      alt=""
+                    />
+                  </button>
+                  <div>
+                    <h2 class="text-dark text-base font-medium">
+                      Membership Application Hours
+                    </h2>
+
+                    <!-- dropdown content -->
+                    <div x-show="show" x-cloak x-collapse class="py-2">
+                      <p class="text-sm text-dark mb-4">
+                        Anyone can access laundry, but residents may do that
+                        after curfew as well. To enroll see the
+                        <a href="" class="text-blue-500 underline"
+                          >intake information.</a
+                        >
+                      </p>
+                      <ul class="flex flex-col space-y-3">
+                        <li class="flex items-center space-x-2">
+                          <span class="text-blue-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Open Monday to Friday 5 PM to 9 PM
+                          </p>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                          <span class="text-red-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <p class="text-dark text-sm">
+                            Only serves people who are clients of the
+                            organization
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="py-4">
+              <p class="text-sm text-dark text-center">
+                Visit the Hunter College NYC Food Policy Center’s
+                <a href="" class="text-blue-500 underline"
+                  >NYC Neighborhood Food Resource Guides</a
+                >
+                for more local information.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="w-full hidden md:block md:w-1/2 lg:w-2/3 bg-gray-300 h-full flex-1"
+        >
+          <div id="map" class="w-full h-full"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1Ijoic2hha2lsaG9zc2FpbiIsImEiOiJja3duZjVwbzMybHBuMnFxYjlpNGRnYzVsIn0.3V03OMf6C4Q-MUDj2Gd0yg";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v11",
+      });
+    </script>
+
+    <!-- Include Swiper slider -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  </body>
+</html>

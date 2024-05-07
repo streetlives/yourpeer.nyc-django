@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map Listing</title>
+
+    <link rel="stylesheet" href="./dist/main.css" />
+      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Include Swiper slider -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
+
+    <!-- mapbox -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body x-data="{query: null}">
+    <div class="flex flex-col w-full h-screen">
+      <div x-data="{offCanvasMenu: false}">
+        <!-- Off canvas Menu -->
+        <div
+          x-show="offCanvasMenu"
+          x-cloak
+          class="relative z-50"
+          aria-labelledby="slide-over-title"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Background backdrop, show/hide based on slide-over state. -->
+          <div class="fixed inset-0 bg-black/40" x-show="offCanvasMenu"></div>
+
+          <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+              <div
+                class="pointer-events-none fixed inset-y-0 left-0 flex max-w-full pr-10"
+              >
+                <div
+                  class="pointer-events-auto w-screen max-w-xs"
+                  x-show="offCanvasMenu"
+                  @click.outside="offCanvasMenu = false"
+                  x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+                  x-transition:enter-start="-translate-x-full"
+                  x-transition:enter-end="-translate-x-0"
+                  x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+                  x-transition:leave-start="-translate-x-0"
+                  x-transition:leave-end="-translate-x-full"
+                >
+                  <div
+                    class="flex h-full flex-col overflow-y-auto bg-primary py-6 shadow-xl"
+                  >
+                    <div class="px-4 sm:px-6">
+                      <div class="flex items-start justify-start">
+                        <div class="flex h-7 items-center">
+                          <button
+                            type="button"
+                            class="text-gray-900"
+                            @click="offCanvasMenu = false"
+                          >
+                            <span class="sr-only">Close panel</span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              class="w-6 h-6"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                      <div class="pt-12 flex flex-col space-y-6">
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Home</a
+                        >
+                        <a
+                          href="./about-us.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >About Us</a
+                        >
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Donate</a
+                        >
+                        <a
+                          href="./privacy-policy.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Privacy Policy</a
+                        >
+                        <a
+                          href="./terms-of-use.html"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Terms of use</a
+                        >
+                        <a
+                          href="#"
+                          class="text-base underline text-black hover:no-underline hover:text-gray-800 transition"
+                          >Leave Feedback</a
+                        >
+                      </div>
+                    </div>
+                    <div class="px-4 sm:px-6">
+                      <div class="flex space-x-7 mb-5">
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M12.15 23.25H1.75C1.19772 23.25 0.75 22.8023 0.75 22.25V1.75C0.75 1.19772 1.19772 0.75 1.75 0.75H22.25C22.8023 0.75 23.25 1.19772 23.25 1.75V22.25C23.25 22.8023 22.8023 23.25 22.25 23.25H16.15V14.75H18.71C18.9643 14.7518 19.1795 14.5625 19.21 14.31L19.59 11.31C19.6072 11.1673 19.5623 11.0242 19.4666 10.917C19.3709 10.8098 19.2337 10.749 19.09 10.75H16.15V9.69C16.15 9.24178 16.3281 8.81193 16.645 8.49499C16.9619 8.17805 17.3918 8 17.84 8H19.65C19.9261 8 20.15 7.77614 20.15 7.5V4.5C20.15 4.22386 19.9261 4 19.65 4H17.84C14.6975 4 12.15 6.5475 12.15 9.69V10.75H9.65C9.37386 10.75 9.15 10.9739 9.15 11.25V14.25C9.15 14.5261 9.37386 14.75 9.65 14.75H12.15V23.25Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M23.1801 6.71006L21.0801 5.81006L22.1801 3.41006L19.6201 4.26006C18.8047 3.49999 17.7347 3.072 16.6201 3.06006C14.1371 3.06556 12.1256 5.07706 12.1201 7.56006V8.56006C8.58008 9.29006 5.49008 7.36006 2.62008 4.06006C2.12008 6.72673 2.62008 8.72673 4.12008 10.0601L0.830078 9.56006C1.0924 11.746 2.88223 13.4306 5.08008 13.5601L2.33008 14.5601C3.33008 16.5601 5.15008 16.8701 7.58008 17.0601C5.5939 18.4147 3.23365 19.1141 0.830078 19.0601C13.5901 24.7301 21.0801 16.4001 21.0801 9.06006V8.23006L23.1801 6.71006Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                        <a
+                          href="#"
+                          class="hover:brightness-75 text-black transition"
+                        >
+                          <svg
+                            width="25"
+                            height="24"
+                            viewBox="0 0 25 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <rect
+                              x="1.74023"
+                              y="0.75"
+                              width="22.5"
+                              height="22.5"
+                              rx="6"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M12.9902 17C15.7517 17 17.9902 14.7614 17.9902 12C17.9902 9.23858 15.7517 7 12.9902 7C10.2288 7 7.99023 9.23858 7.99023 12C7.99023 14.7614 10.2288 17 12.9902 17Z"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M20.3403 5.1499C20.3403 5.42604 20.1165 5.6499 19.8403 5.6499C19.5642 5.6499 19.3403 5.42604 19.3403 5.1499"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                            <path
+                              d="M19.3403 5.1499C19.3403 4.87376 19.5642 4.6499 19.8403 4.6499C20.1165 4.6499 20.3403 4.87376 20.3403 5.1499"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+                      <p class="text-sm text-black">&copy; Streetlives.nyc</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white relative z-10 md:shadow w-full flex flex-col">
+          <!-- header -->
+          <nav
+            class="flex space-x-3 items-center justify-between px-5 py-3"
+          >
+            <div class="flex items-center">
+              <button
+                class="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
+                @click="offCanvasMenu = true"
+              >
+                <!-- Heroicon -- 'bars-3' -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <a href="/" class="text-sm ml-3 leading-3 hidden sm:inline-block">
+                <span class="text-black font-bold">YourPeer</span>NYC
+              </a>
+            </div>
+            <div class="flex-grow md:flex-none">
+              <div
+                class="flex items-center relative rounded py-1 px-2 sm:px-3 md:p-3 border border-gray-300 w-full sm:w-64 md:w-96"
+              >
+                <div class="flex items-center space-x-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    />
+                  </svg>
+                </div>
+                <form
+                  class="md:flex items-center ml-2 relative"
+                  action="./search.html"
+                >
+                  <input
+                    class="text-xs md:pl-3 sm:text-sm text-gray-600 w-full border-none p-0 focus:ring-0 block mt-0"
+                    type="text"
+                    x-model="query"
+                    value="ESL Clases"
+                    placeholder="All Services"
+                  />
+                </form>
+
+                <!-- Search panel -->
+                <div
+                  x-show="query"
+                  x-transition
+                  x-cloak
+                  class="bg-white fixed md:absolute bottom-0 md:bottom-auto top-[57.6px] md:top-full inset-x-0 rounded border border-gray-300"
+                >
+                  <a
+                    class="flex items-center px-5 py-4 hover:bg-gray-200 transition"
+                    href="./search.html"
+                  >
+                    <img
+                      src="./dist/img/icons/search-icon.png"
+                      class="flex-shrink-0 w-6 h-6 max-h-6 object-contain"
+                      alt=""
+                    />
+                    <div class="flex-1 text-dark">
+                      Search for <span x-text="query"></span>
+                    </div>
+                    <span class="text-dark">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        class="w-6 h-6"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M3.75 12a.75.75 0 01.75-.75h13.19l-5.47-5.47a.75.75 0 011.06-1.06l6.75 6.75a.75.75 0 010 1.06l-6.75 6.75a.75.75 0 11-1.06-1.06l5.47-5.47H4.5a.75.75 0 01-.75-.75z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <button
+              class="inline-flex ml-auto items-center text-[10px] sm:text-xs uppercase font-medium text-black space-x-1"
+            >
+              <span class="inline-block">Quick Exit</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-5 h-5 flex-shrink-0"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <main class="flex-1 overflow-hidden flex flex-col md:flex-row">
+        <div
+          class="w-full md:w-1/2 lg:w-1/3 overflow-y-auto md:h-full relative bg-white"
+        >
+          <div class="p-5">
+            <div class="flex items-center justify-center flex-col p-5 sm:p-7">
+              <img
+                src="./dist/img/icons/search-icon.png"
+                class="w-9 h-9 max-h-9 object-contain"
+                alt=""
+              />
+              <p class="mt-5 text-base text-dark text-center">
+                Nothing matched for 'ESL Clases'. Please try another word or
+                browse a category below
+              </p>
+            </div>
+
+            <ul
+              x-data="{items: [
+              {
+                title: 'Accommodations',
+                image: './dist/img/icons/home-icon.svg'
+              },
+              {
+                title: 'Clothing',
+                image: './dist/img/icons/clothing-icon.png'
+              },
+              {
+                title: 'Food',
+                image: './dist/img/icons/food-icon.png'
+              },
+  
+              {
+                title: 'Personal Care',
+                image: './dist/img/icons/personal-care-icon.png'
+              },
+              {
+                title: 'Health',
+                image: './dist/img/icons/health-icon.png'
+              },
+              {
+                title: 'Other',
+                image: './dist/img/icons/dot-icon.png'
+              },
+  
+            ]}"
+              class="flex flex-col divide-y divide-gray-300"
+            >
+              <template x-for="(item, index) in items" :key="index">
+                <li>
+                  <a
+                    href="./map.html"
+                    class="flex items-center space-x-4 group py-5 rounded-md sm:px-8 hover:bg-gray-100 transition duration-200"
+                  >
+                    <img
+                      :src="item.image"
+                      width="32"
+                      class="object-contain flex-shrink-0"
+                      alt=""
+                    />
+                    <div class="flex-grow">
+                      <div
+                        class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                        x-text="item.title"
+                      ></div>
+                    </div>
+                    <span
+                      class="text-gray-700 transition group-hover:translate-x-1"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="w-5 h-5"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </a>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="w-full hidden md:block md:w-1/2 lg:w-2/3 bg-gray-300 h-full flex-1"
+        >
+          <div id="map" class="w-full h-full"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1Ijoic2hha2lsaG9zc2FpbiIsImEiOiJja3duZjVwbzMybHBuMnFxYjlpNGRnYzVsIn0.3V03OMf6C4Q-MUDj2Gd0yg";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v11",
+      });
+    </script>
+
+    <!-- Include Swiper slider -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  </body>
+</html>

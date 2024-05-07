@@ -1,0 +1,1738 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% extends "_base.html" %}
+{% load static %}
+{% load jsonify %}
+{% load cache %}
+{% load remove_query_param %}
+
+{% block title %}{{page_title}}{% endblock %}
+{% block meta_desc%}{{page_description}}{% endblock %}
+
+
+{% block head %}
+<link rel="canonical" href="{{ canonical_url }}" />
+{% endblock head %}
+
+{% block content %}
+  {% comment %} load in google maps {% endcomment %}
+
+  <script>
+  gmapsInit = function(){
+      if(window._hadGoogleMapsScript) return;
+      (g => {
+          var h, a, k, p = "The Google Maps JavaScript API",
+              c = "google",
+              l = "importLibrary",
+              q = "__ib__",
+              m = document,
+              b = window;
+          b = b[c] || (b[c] = {});
+          var d = b.maps || (b.maps = {}),
+              r = new Set,
+              e = new URLSearchParams,
+              u = () => h || (h = new Promise(async (f, n) => {
+                  await (a = m.createElement("script"));
+                  e.set("libraries", [...r] + "");
+                  for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+                  e.set("callback", c + ".maps." + q);
+                  a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+                  d[q] = f;
+                  a.onerror = () => h = n(Error(p + " could not load."));
+                  a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+                  m.head.append(a)
+              }));
+          d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+      })({
+          key: "AIzaSyCFMDqEgQ6VWWJbROzZhHu-f6sktAmTEGU",
+          v: "weekly",
+          // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+          // Add other bootstrap parameters as needed, using camel case.
+      });
+      window._hadGoogleMapsScript = true;
+  }
+  gmapsInit();  
+  </script>
+
+  
+
+  <!-- Off canvas Menu -->
+  {% include 'shared/offcanvas_menu.html' %}
+
+  <div class='h-[100dvh] w-full'>
+
+  <!-- switch list and map -->
+    <div class="fixed bottom-5 left-1/2 -translate-x-1/2 md:hidden z-30">
+      <button class="hidden items-center justify-center text-black bg-primary rounded-full shadow-sm hover:brightness-90 hover:cursor-pointer text-sm py-2 px-4 space-x-2"
+              id="listViewButton"
+              _="on click
+              set window.view to 'list'
+                remove .inline-flex
+                add .hidden
+                remove .hidden from #mapViewButton
+                add .inline-flex to #mapViewButton  
+                remove .flex from #map_container
+                add .hidden to #map_container   
+                add .block to #locations_container      
+                remove .hidden from #locations_container            
+              ">
+        <img src="{% static 'dist/img/icons/list-icon.svg' %}" class="w-5 max-h-5 object-contain" />
+        <span>View list</span>
+      </button>
+      <button class="inline-flex items-center justify-center text-black bg-primary rounded-full shadow-sm hover:brightness-90 hover:cursor-pointer text-sm py-2 px-4 space-x-2"
+              id="mapViewButton"
+              _="on click
+                set window.view to 'map'
+                remove .inline-flex
+                add .hidden
+                remove .hidden from #listViewButton
+                add .inline-flex to #listViewButton  
+                remove .flex from #locations_container
+                add .hidden to #locations_container   
+                add .block to #map_container      
+                remove .hidden from #map_container            
+              "
+              >
+        <img src="{% static 'dist/img/icons/map-icon.svg' %}" class="w-5 max-h-5 object-contain" />
+        <span>View map</span>
+      </button>
+    </div>
+
+    <script>
+    //       let viewMapButton = document.getElementById('mapViewButton');
+    // let viewListButton = document.getElementById('listViewButton');
+    // let list_container = document.getElementById('locations_container');
+    // let map_container = document.getElementById('map_container');
+
+    // viewMapButton.addEventListener('click', function(e) {
+    //   viewListButton.style.display = 'flex';
+    //   viewMapButton.style.display = 'none'
+
+    //   list_container.classList.remove('flex');
+    //   list_container.classList.add('hidden');
+      
+
+    //   map_container.classList.remove('hidden');
+    //   map_container.classList.add('block');
+    // })
+
+    // viewListButton.addEventListener('click', function(e) {
+    //   viewListButton.style.display = 'none';
+    //   viewMapButton.style.display = 'flex'
+
+    //   map_container.classList.remove('flex');
+    //   map_container.classList.add('hidden');
+      
+
+    //   list_container.classList.add('block');
+    //   list_container.classList.remove('hidden');
+    // })
+    </script>
+
+
+
+    <div class="flex flex-col w-full h-full">
+      <div>
+
+
+        <div class="bg-white relative z-20 shadow w-full flex flex-col">
+          <!-- header -->
+          <nav
+            class="flex space-x-3 items-center justify-between px-5 py-2 md:py-3"
+          >
+            <div class="flex items-center">
+              <button
+                class="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
+                id="offCanvasMenuButton"
+              >
+                <!-- Heroicon -- 'bars-3' -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <a href="/" translate="no" class="text-sm ml-3 leading-3 hidden sm:inline-block">
+                <span class="text-black font-extrabold">YourPeer</span>NYC
+              </a>
+            </div>
+            <script type="text/javascript">
+            
+            </script>
+            <div id="search_container" class="flex-grow md:flex-none">
+              <div
+                class="flex items-center relative rounded py-1 px-2 sm:px-3 md:p-3 border border-gray-300 w-full sm:w-64 md:w-96"
+              >
+                <div class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    />
+                  </svg>
+                </div>
+                <form
+                  class="md:flex items-center ml-2 relative flex-1"
+                  action="#"
+                  method="GET"
+                  id="search_form"
+                  hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-get=""
+                  onSubmit="doSearchSubmit(event)"
+                >
+                  <input
+                    class="text-xs md:pl-3 sm:text-sm text-gray-600 w-full border-none p-0 focus:ring-0 block mt-0"
+                    type="text"
+                    placeholder="Search"
+                    id="search_input"
+                    onKeyUp="doSearch()"
+                    onKeyDown="doSearch()"
+                    onFocus="doSearch()"
+                    name="search"
+                    value="{% if search %}{{ search }}{% endif %}"
+                  />
+                </form>
+
+                {% if 'search' in request.GET %}
+                <a href="?{{ request.GET|remove_query_param:"search" }}" class="text-sm text-gray-600 font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </a>
+                {% endif %}
+
+                <!-- Search panel -->
+                <div
+                  class="bg-white fixed z-40 md:absolute bottom-0 md:bottom-auto w-full top-[49.6px] md:top-full inset-x-0 rounded border md:border-gray-300"
+                  style="display: none;"
+                  id="search_panel"
+                >
+                  <div>
+                    <a
+                      class="flex items-center px-5 py-4 hover:bg-gray-200 transition"
+                      href="#"
+                      id="search_panel_link"
+                      hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                      onClick="doSearchSubmit(event)"
+                    >
+                      <img
+                        src="{% static 'dist/img/icons/search-icon.png' %}"
+                        class="flex-shrink-0 w-6 h-6 max-h-6 object-contain"
+                        alt=""
+                      />
+                      <div class="flex-1 text-dark">
+                        Search for <span id="search_for" translate="no"></span>
+                      </div>
+                      <span class="text-dark">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          class="w-6 h-6"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M3.75 12a.75.75 0 01.75-.75h13.19l-5.47-5.47a.75.75 0 011.06-1.06l6.75 6.75a.75.75 0 010 1.06l-6.75 6.75a.75.75 0 11-1.06-1.06l5.47-5.47H4.5a.75.75 0 01-.75-.75z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    </a>
+                  </div>
+
+                  <div class="md:hidden" >
+                    <div class="flex items-center justify-center flex-col p-5 sm:p-7">
+                      <img
+                        src="{% static 'dist/img/icons/search-icon.png' %}"
+                        class="w-9 h-9 max-h-9 object-contain"
+                        alt=""
+                      />
+                      <p class="mt-5 text-base text-dark text-center ">
+                        Search for keywords <br> in our service listings
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              class="inline-flex ml-auto items-center text-xs sm:text-xs font-medium text-black space-x-1"
+              id="quickExitLink"
+            >
+              <span class="inline-block leading-3">Quick Exit</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-5 h-5 flex-shrink-0"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <main class="flex-1 overflow-hidden flex flex-col md:flex-row">
+
+        <div 
+          class="relative w-full md:w-1/2 lg:w-1/3 bg-white overflow-hidden"
+          id="left_panel"
+        >
+
+
+
+
+        {% if location is None %}
+
+          <div 
+            class="w-full h-full md:h-full flex flex-col" id="filters_and_list_screen"
+          >
+
+          <!-- filters popup -->
+          <div
+            id="filters_popup"
+            class="bg-white fixed md:absolute inset-x-0 top-[49.6px] md:top-0 bottom-0 md:h-full z-40 flex flex-col md:overflow-hidden"
+            style="{% if is_advanced_filters %} display: flex {% else %} display: none; {% endif %}"
+            {% comment %} x-transition:enter="transform transition ease-in-out duration-200"
+            x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0"
+            x-transition:leave="transform transition ease-in-out duration-200"
+            x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full" {% endcomment %}
+            >
+            <div class="flex items-center p-4 justify-between">
+                <div class="text-dark text-lg font-medium">Filters</div>
+                <button 
+                id="filters_popup_close_button"
+                class="inline-block" _="on click log 'hide filters' 
+                              then hide #filters_popup 
+                              then doFilterChange('filters_popup', 'close')">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form class="flex-1 px-4 overflow-y-scroll scrollbar-hide py-5" action="#" method="get" id="filters_form"
+            hx-swap="innerHTML" hx-target="#filters_and_list_screen" hx-push-url="true"  hx-select="#filters_and_list_screen" hx-get="/locations"
+            >
+                <!-- Service type -->
+                
+                <fieldset>
+                  <input type="hidden" name="is_advanced_filters" value="" id="is_advanced_filters" />
+                    <legend class="text-xs font-semibold leading-6 text-dark">Service type</legend>
+                    <div class="mt-2 grid gap-2 sm:gap-5 grid-cols-3">
+                        <!--
+                            Checked: "bg-primary border-dark", Not Checked: "bg-white border-gray-300"
+                          -->
+                        
+                          <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                          {% if is_shelter %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                                :class="[$store.filters.serviceType === 'shelters-housing' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                              <input type="radio"
+                                onClick="doFilterChange('shelter',event)"
+                                id="filter_shelter"
+                                    {% comment %} x-model="$store.filters.serviceType" {% endcomment %}
+                                    name="shelter"
+                                    value="{% if is_shelter %}true{% endif %}"
+                                    class="sr-only"
+                                    aria-labelledby="service-type-0-label"
+                                    aria-describedby="service-type-0-description-0 service-type-0-description-1" 
+                                    _="on htmx:afterSwap fetchLocations()"
+                                    />
+                              <img 
+                              
+                                {% if is_shelter %}
+                                  src="{% static 'dist/img/icons/active-home-icon.svg' %}"
+                                {% else %}
+                                    src="{% static 'dist/img/icons/home-icon.svg' %}"
+                                {% endif %}
+                                    data-active-src="{% static 'dist/img/icons/active-home-icon.svg' %}"
+                                    data-inactive-src="{% static 'dist/img/icons/home-icon.svg' %}"
+                                  class="max-h-8 w-8 h-8 object-contain"
+                                  alt="" />
+                              {% comment %} <img x-show="$store.filters.serviceType === 'shelters-housing'"
+                                  x-cloak
+                                  src="{% static 'dist/img/icons/active-home-icon.svg' %}"
+                                  class="max-h-8 w-8 h-8 object-contain"
+                                  alt="" /> {% endcomment %}
+                              <div class="text-center text-xs text-dark mt-3 truncate">Shelter & Housing</div>
+                          </label>
+                        
+                        <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                        {% if is_food%} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                              :class="[$store.filters.serviceType === 'food' ? 'bg-primary border-black' : 'bg-white border-gray-300']"
+                              >
+                            <input type="radio"
+                                  id="filter_food"
+                                  onClick="doFilterChange('food',event)"
+                                  {% comment %} x-model="$store.filters.serviceType" {% endcomment %}
+                                  name="food"
+                                  value="{% if is_food%}true{% endif %}"
+                                  class="sr-only"
+                                  aria-labelledby="service-type-0-label"
+                                  aria-describedby="service-type-0-description-0 service-type-0-description-1" />
+                            <img 
+                              {% if is_food %}
+                                  src="{% static 'dist/img/icons/active-food-icon.svg' %}"
+                              {% else %}
+                                src="{% static 'dist/img/icons/food-icon-2.svg' %}"
+                              {% endif %}
+                                data-active-src="{% static 'dist/img/icons/active-food-icon.svg' %}"
+                                data-inactive-src="{% static 'dist/img/icons/food-icon-2.svg' %}"
+                                class="max-h-8 w-8 h-8 object-contain"
+                                alt="" />
+                            <div class="text-center text-xs text-dark mt-3 truncate">Food</div>
+                        </label>
+                        <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                        {% if is_clothing%} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                              :class="[$store.filters.serviceType === 'clothing' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                            <input type="radio"
+                                    id="filter_clothing"
+                                    onClick="doFilterChange('clothing',event)"
+                                  {% comment %} x-model="$store.filters.serviceType" {% endcomment %}
+                                  name="clothing"
+                                  value="{% if is_clothing%}true{% endif %}"
+                                  class="sr-only"
+                                  aria-labelledby="service-type-0-label"
+                                  aria-describedby="service-type-0-description-0 service-type-0-description-1" />
+                            <img 
+                            {% if is_clothing %}
+                                  src="{% static 'dist/img/icons/active-clothing-icon.svg' %}"
+                              {% else %}
+
+                                src="{% static 'dist/img/icons/clothing-icon.svg' %}"
+                              {% endif %}
+                                data-active-src="{% static 'dist/img/icons/active-clothing-icon.svg' %}"
+                                data-inactive-src="{% static 'dist/img/icons/clothing-icon.svg' %}"
+
+                                class="max-h-8 w-8 h-8 object-contain"
+                                alt="" />
+                            <div class="text-center text-xs text-dark mt-3 truncate">Clothing</div>
+                        </label>
+                        <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                        {% if is_personal_care%} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                              :class="[$store.filters.serviceType === 'personal-care' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                            <input type="radio"
+                                  id="filter_personal_care"
+                                  onClick="doFilterChange('personal_care',event)"
+                                  {% comment %} x-model="$store.filters.serviceType" {% endcomment %}
+                                  name="personal_care"
+                                  value="{% if is_personal_care%}true{% endif %}"
+                                  class="sr-only"
+                                  aria-labelledby="service-type-0-label"
+                                  aria-describedby="service-type-0-description-0 service-type-0-description-1" />
+                            <img 
+                            {% if is_personal_care %}
+                                  src="{% static 'dist/img/icons/active-personal-care.svg' %}"
+                              {% else %}
+                                src="{% static 'dist/img/icons/personal-care-2.svg' %}"
+                              {% endif %}
+                                  data-active-src="{% static 'dist/img/icons/active-personal-care.svg' %}"
+                                  data-inactive-src="{% static 'dist/img/icons/personal-care-2.svg' %}"
+                                class="max-h-8 w-8 h-8 object-contain"
+                                alt="" />
+                            <div class="text-center text-xs text-dark mt-3 truncate">Personal care</div>
+                        </label>
+                        <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                        {% if is_health%} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                              :class="[$store.filters.serviceType === 'health-care' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                            <input type="radio"
+                                  id="filter_health"
+                                  {% comment %} x-model="$store.filters.serviceType" {% endcomment %}
+                                  name="health"
+                                  value="{% if is_health %}true{% endif %}"
+                                  onClick="doFilterChange('health',event)"
+                                  class="sr-only"
+                                  aria-labelledby="service-type-0-label"
+                                  aria-describedby="service-type-0-description-0 service-type-0-description-1" />
+                            <img 
+                            {% if is_health_care %}
+                                  src="{% static 'dist/img/icons/active-health-icon.svg' %}"
+                              {% else %}
+                                src="{% static 'dist/img/icons/health-icon.svg' %}"
+                              {% endif %}
+                                  data-active-src="{% static 'dist/img/icons/active-health-icon.svg' %}"
+                                  data-inactive-src="{% static 'dist/img/icons/health-icon.svg' %}"
+                                class="max-h-8 w-8 h-8 object-contain"
+                                alt="" />
+
+                            <div class="text-center text-xs text-dark mt-3 truncate">Health</div>
+                        </label>
+                        <label class="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded
+                        {% if is_other %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                              :class="[$store.filters.serviceType === 'other-services' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                            <input type="radio"
+                                  id="filter_other"
+                                  onClick="doFilterChange('other',event)"
+                                  
+                                  x-model="$store.filters.serviceType"
+                                  name="other"
+                                  value="{% if is_other%}true{% endif %}"
+                                  class="sr-only"
+                                  aria-labelledby="service-type-0-label"
+                                  aria-describedby="service-type-0-description-0 service-type-0-description-1" />
+                            <img
+                            {% if is_other_services %}
+                                  src="{% static 'dist/img/icons/active-dots-icon.svg' %}"
+                              {% else %}
+                                src="{% static 'dist/img/icons/dots-icon.svg' %}"
+                              {% endif %}
+                                  data-active-src="{% static 'dist/img/icons/active-dots-icon.svg' %}"
+                                  data-inactive-src="{% static 'dist/img/icons/dots-icon.svg' %}"
+                                class="max-h-8 w-8 h-8 object-contain"
+                                alt="" />
+                            <div class="text-center text-xs text-dark mt-3 truncate">Other</div>
+                        </label>
+                    </div>
+                </fieldset>
+                <!-- Opening hours -->
+                <fieldset class="mt-6" id="filter_hours">
+                    <legend class="text-xs font-semibold leading-6 text-dark">Opening hours</legend>
+                    <div class="mt-2 flex w-full">
+                        <!--
+                            Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-r-transparent"
+                          -->
+                        <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none
+                          {% if not is_open_now %} bg-primary border-black {% else %} bg-white border-gray-300 border-r-transparent{% endif %}"
+                              :class="[$store.filters.openingHours === 'any' ? 'bg-primary border-black' : 'bg-white border-gray-300 border-r-transparent']">
+                            <input type="radio"
+                                  id="filter_not_open_now"
+                                  _="on click log 'open now any' then
+                                      doFilterChange('not_open_now',event)"
+                                  name="not_open_now"
+                                  value=""
+                                  class="sr-only"
+                                  aria-labelledby="openingHours-0-label"
+                                  aria-describedby="openingHours-0-description-0 openingHours-0-description-1" />
+                            Any
+                        </label>
+                        <!--
+                            Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-l-transparent"
+                          -->
+                        <label id="filter_open_now_lbl" class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-r-lg focus:outline-none
+                          {% if is_open_now %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %}"
+                              >
+                            <input 
+                                  id="filter_open_now"
+                                  type="radio"
+                                  name="open_now"
+                                  _="on click log 'open now' then
+                                    doFilterChange('open_now',event)"
+                                  value="{% if is_open_now %}}true{% endif %}"
+                                  class="sr-only"
+                                  aria-labelledby="openingHours-0-label"
+                                  aria-describedby="openingHours-0-description-0 openingHours-0-description-1" />
+                            Open now
+                        </label>
+                    </div>
+                </fieldset>
+                <!-- shelters-housing type -->
+                <script type="text/javascript">
+                    console.log("server is shelter type any: {{ is_shelter }}")
+                    console.log("server is shelter type single adult: {{ is_shelter_type_single_adult }}")
+                    console.log("server is shelter type families: {{ is_shelter_type_families }}")
+                    </script>
+                    <fieldset class="mt-6
+                    {% if is_not_shelter%}hidden{% endif %}">
+                        <legend class="text-xs font-semibold leading-6 text-dark">Shelter & Housing type</legend>
+                        <div class="mt-2 flex w-full
+                        {% if not is_shelter %}divide-x-2 divide-gray-300{% endif %}">
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center
+                            {% if 'shelter' not in request.GET %} bg-primary border-black {% else %} bg-white border-gray-300 border-r-transparent {% endif %}">
+                                <input type="radio"
+                                      id="filter_shelter_type_any"
+                                      _="on click log 'shelter type any' then
+                                      doFilterChange('shelter_type_any',event)"
+                                      name="accommodation-type"
+                                      value="{% if 'shelter' not in request.GET %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="accommodationType-0-label"
+                                      aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1" />
+                                Any
+                            </label>
+                            <!--
+                              Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 "
+                            -->
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center
+                            {% if is_shelter_type_single_adult %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}"
+                                  :class="[$store.filters.accommodationType === 'single-adult' ? 'bg-primary border-black' : 'bg-white border-gray-300']">
+                                <input type="radio"
+                                      id="filter_shelter_type_single_adult"
+                                      _="on click log 'shelter type single adult' then
+                                      doFilterChange('shelter_type_single_adult',event)"
+                                      x-model="$store.filters.accommodationType"
+                                      name="accom"
+                                      value="{% if is_shelter_type_single_adult %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="accommodationType-0-label"
+                                      aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1" />
+                                Single Adult
+                            </label>
+                            <!--
+                              Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-l-transparent"
+                            -->
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-r-lg focus:outline-none text-center
+                            {% if is_shelter_type_families %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %}">
+                                <input type="radio"
+                                      id="filter_shelter_type_families"
+                                      _="on click log 'shelter type families' then
+                                      doFilterChange('shelter_type_families',event)"
+                                      name="accommodationType"
+                                      value="{% if is_shelter_type_families %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="accommodationType-0-label"
+                                      aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1" />
+                                Families
+                            </label>
+                        </div>
+                    </fieldset>
+                <!-- Food type -->
+                <script type="text/javascript">
+                    console.log("server is food: {{ is_food }}")
+                    console.log("server is food type any: {{ is_food_type_any }}")
+                    console.log("server is food type soup kitchen: {{ is_food_type_soup_kitchen }}")
+                    console.log("server is food type pantry: {{ is_food_type_pantry }}")
+                </script>
+                    <fieldset class="mt-6
+                    {% if is_not_food %}hidden{% endif %}">
+                        <legend class="text-xs font-semibold leading-6 text-dark">Food type</legend>
+                        <div class="mt-2 flex w-full
+                        {% if not is_food %}divide-x-2 divide-gray-300{% endif %}">
+
+                            <!--
+                              Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-r-transparent"
+                            -->
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none text-center
+                            {% if is_food_type_any %} bg-primary border-black {% else %} bg-white border-gray-300 border-r-transparent {% endif %}"
+                                  >
+                                <input type="radio"
+                                        id="filter_food_type_any"
+                                        _="on click log 'food type any' then
+                                        doFilterChange('food_type_any',event)"
+                                      name="foodType"
+                                      value="{% if is_food_type_any %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="foodType-0-label"
+                                      aria-describedby="foodType-0-description-0 foodType-0-description-1" />
+                                Any
+                            </label>
+                            <!--
+                              Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 "
+                            -->
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center
+                            {% if is_food_type_soup_kitchen %} bg-primary border-black {% else %} bg-white border-gray-300 {% endif %}">
+                                <input type="radio"
+                                        id="filter_food_type_soup_kitchen"
+                                        _="on click log 'food type soup kitchen' then
+                                        doFilterChange('food_type_soup_kitchen',event)"
+                                      name="soup-kitchen"
+                                      value="{% if is_food_type_soup_kitchen %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="foodType-0-label"
+                                      aria-describedby="foodType-0-description-0 foodType-0-description-1" />
+                                Soup Kitchen
+                            </label>
+                            <!--
+                              Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-l-transparent"
+                            -->
+                            <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border-2 py-2 px-5 rounded-r-lg focus:outline-none text-center
+                            {% if is_food_type_pantry %} bg-primary border-black {% else %} bg-white border-gray-300 border-l-transparent {% endif %}"
+                                  :class="[$store.filters.foodType === 'food-pantry' ? 'bg-primary border-black' : 'bg-white border-gray-300 border-l-transparent']">
+                                <input type="radio"
+                                        id="filter_food_type_food_pantry"
+                                        _="on click log 'food type food pantry' then
+                                        doFilterChange('food_type_food_pantry',event)"
+                                      x-model="$store.filters.foodType"
+                                      name="food-pantry"
+                                      value="{% if is_food_type_pantry %}true{% endif %}"
+                                      class="sr-only"
+                                      aria-labelledby="foodType-0-label"
+                                      aria-describedby="foodType-0-description-0 foodType-0-description-1" />
+                                Food Pantry
+                            </label>
+                        </div>
+                    </fieldset>
+                <!-- Clothing type -->
+                    <div>
+                    <script type="text/javascript">
+                    console.log("server is clothing type any: {{ is_clothing_type_any }}")
+                    console.log("server is clothing type casual: {{ is_clothing_type_casual }}")
+                    console.log("server is clothing type professional: {{ is_clothing_type_professional }}")
+                    </script>
+                        <fieldset class="mt-6
+                        {% if is_not_clothing %}hidden{% endif %}">
+                            <legend class="text-xs font-semibold leading-6 text-dark">Clothing type</legend>
+                            <div class="mt-2 flex w-full
+                            {% if not is_clothing %}divide-x-2 divide-gray-300{% endif %}">
+                                <!--
+                                Checked: "bg-primary border-black", Not Checked: "bg-white border-gray-300 border-r-transparent"
+                              -->
+                                <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-l-lg focus:outline-none
+                                {% if is_clothing_type_any %} bg-primary border-dark {% else %} bg-white border-gray-300 border-r-transparent {% endif %}">
+                                    <input type="radio"
+                                          id="filter_clothing_type_any"
+                                            _="on click log 'clothing type any' then
+                                            doFilterChange('clothing_type_any',event)"
+                                          name="clothingType"
+                                          value="{% if is_clothing_type_any %}true{% endif %}"
+                                          class="sr-only"
+                                          aria-labelledby="clothingType-0-label"
+                                          aria-describedby="clothingType-0-description-0 clothingType-0-description-1" />
+                                    Any
+                                </label>
+                                <!--
+                                Checked: "bg-primary border-dark", Not Checked: "bg-white border-gray-300 "
+                              -->
+                                <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none
+                                {% if is_clothing_type_casual %} bg-primary border-dark {% else %} bg-white border-gray-300 {% endif %}">
+                                    <input type="radio"
+                                            id="filter_clothing_type_casual"
+                                              _="on click log 'clothing type casual' then
+                                              doFilterChange('clothing_type_casual',event)"
+                                          name="casual"
+                                          value="{% if is_clothing_type_casual %}true{% endif %}"
+                                          class="sr-only"
+                                          aria-labelledby="clothingType-0-label"
+                                          aria-describedby="clothingType-0-description-0 clothingType-0-description-1" />
+                                    Casual
+                                </label>
+                                <!--
+                                Checked: "bg-primary border-dark", Not Checked: "bg-white border-gray-300 border-l-transparent"
+                              -->
+                                <label class="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 rounded-r-lg focus:outline-none
+                                {% if is_clothing_type_professional %} bg-primary border-dark {% else %} bg-white border-gray-300 border-l-transparent {% endif %}">
+                                    <input type="radio"
+                                            id="filter_clothing_type_professional"
+                                              _="on click log 'clothing type professional' then
+                                              doFilterChange('clothing_type_professional',event)"
+                                          name="professional"
+                                          value="professional"
+                                          class="sr-only"
+                                          aria-labelledby="clothingType-0-label"
+                                          aria-describedby="clothingType-0-description-0 clothingType-0-description-1" />
+                                    Professional
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+                <!-- Amenities -->
+                    <div>
+                        <fieldset class="mt-6
+                        {% if is_not_personal_care %}hidden{% endif %}">
+                            <legend class="text-sm font-semibold leading-6 text-dark">Amenities</legend>
+                            <div class="mt-2 flex w-full flex-col space-y-4 ml-1">
+                                <label class="text-xs relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                          id="filter_personal_care_toiletries"
+                                          _="on click log 'personal care toiletries' then
+                                          doFilterChange('personal_care_toiletries',event)"
+                                          name="Toiletries"
+                                          {% if is_personal_care_type_toiletries %}checked{% endif %}
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <span class="text-xs text-dark mt-0.5">Toiletries</span>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                          id="filter_personal_care_restrooms"
+                                          _="on click log 'personal care restrooms' then
+                                          doFilterChange('personal_care_restrooms',event)"
+                                          name="Restrooms"
+                                          {% if is_personal_care_type_restrooms %}checked{% endif %}
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <span class="text-xs text-dark mt-0.5">Restrooms</span>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                          id="filter_personal_care_shower"
+                                          _="on click log 'personal care shower' then
+                                          doFilterChange('personal_care_showers',event)"
+                                          name="Shower"
+                                          {% if is_personal_care_type_showers %}checked{% endif %}
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <span class="text-xs text-dark mt-0.5">Shower</span>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                          id="filter_personal_care_laundry"
+                                          _="on click log 'personal care laundry' then
+                                          doFilterChange('personal_care_laundry',event)"
+                                          name="Laundry"
+                                            {% if is_personal_care_type_laundry %}checked{% endif %}
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <span class="text-xs text-dark mt-0.5">Laundry</span>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer hidden">
+                                    <input type="checkbox"
+                                          id="filter_personal_care_haircuts"
+                                          _="on click log 'personal care haircuts' then
+                                          doFilterChange('personal_care_haircut',event)"
+                                          name="Haircut"
+                                            {% if is_personal_care_type_haircuts %}checked{% endif %}
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark hidden" />
+                                    <span class="text-xs text-dark mt-0.5 hidden">Haircut</span>
+                                </label> 
+                            </div>
+                        </fieldset>
+                    </div>
+                <!-- Requirement typ -->
+                <script type="text/javascript">
+                console.log("server is requirement none: {{ is_requirement_types_none }}")
+                console.log("server is requirement referral letter: {{ is_requirement_types_referral_letter }}")
+                console.log("server is requirement registered client only: {{ is_requirement_types_registered_client }}")
+                </script>
+                    <div>
+                    
+                        <fieldset class="mt-6
+                        {% if is_clothing or is_personal_care %}show{% else %}hidden{% endif %}">
+                            <legend class="text-xs font-semibold leading-6 text-dark">Requirement type</legend>
+                            <div class="mt-2 flex w-full flex-col space-y-4 ml-1">
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                          id="filter_requirement_types_any"
+                                          _="on click log 'requirement type no requirements' then
+                                          doFilterChange('requirement_types_any',event)" 
+                                          {% if is_requirement_types_none %}checked="checked"{% endif %}
+                                          name="requirementType"
+                                          aria-labelledby="requirementType-0-label"
+                                          aria-describedby="requirementType-0-description-0 requirementType-0-description-1"
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <span class="text-xs text-dark mt-0.5">No requirements</span>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                            id="filter_requirement_types_referral_letter"
+                                            _="on click log 'requirement type referral letter' then
+                                            doFilterChange('requirement_types_referral_letter',event)" 
+                                            {% if is_requirement_types_referral_letter %}checked="checked"{% endif %}
+                                          name="requirementType"
+                                          aria-labelledby="requirementType-0-label"
+                                          aria-describedby="requirementType-0-description-0 requirementType-0-description-1"
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <div class="text-xs text-dark mt-0.5">
+                                        <div>Referral letter</div>
+                                        <p class="text-gray-600">
+                                            You must bring a letter from another service
+                                            provider stating that you require this service.
+                                        </p>
+                                    </div>
+                                </label>
+                                <label class="relative flex-1 flex space-x-2 cursor-pointer">
+                                    <input type="checkbox"
+                                            id="filter_requirement_types_registered_client"
+                                            _="on click log 'requirement type registered client only' then
+                                            doFilterChange('requirement_types_registered_client',event)" 
+                                            {% if is_requirement_types_registered_client %}checked="checked"{% endif %}
+                                          name="requirementType"
+                                          aria-labelledby="requirementType-0-label"
+                                          aria-describedby="requirementType-0-description-0 requirementType-0-description-1"
+                                          class="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark" />
+                                    <div class="text-xs text-dark mt-0.5">
+                                        <div>Registered client only</div>
+                                        <p class="text-gray-600">
+                                            You must be a registered client of their
+                                            organization to access their services.
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+
+            </form>
+            <div class="p-4 flex items-center gap-x-4">
+              <a class="outline-button block flex-1 flex-shrink-0"
+                      href="/locations"
+                      {% comment %} hx-get="/locations"
+                      hx-push-url="true"
+                      hx-swap="innerHTML"
+                      hx-select="#filters_and_list_screen"
+                      hx-boost="true"
+                      hx-target="#filters_and_list_screen" {% endcomment %}
+                      >Clear all</a>
+              <a class="primary-button flex-1 block flex-shrink-0 px-5 truncate"
+                      _="on click hide #filters_popup then doFilterChange('filters_popup', 'close')">
+                  show <span id="filter_results_number">{{ count }}</span> results
+              </a>
+            </div>
+          </div>
+          
+
+              <!-- Filters header -->
+            
+            <div class="sticky top-0 w-full inset-x-0 bg-white z-10">
+              <div
+                class="flex gap-2 py-3 px-4  flex-nowrap lg:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide"
+              >
+              {% if is_shelter or is_not_filter %}
+                  <a
+                    class=" {% if is_shelter %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                    {% if is_shelter %}
+                    href="{% url 'map' %}"
+                    {% else %}
+                    href="{% url 'shelters-housing' %}"
+                    {% endif %}
+                    hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true" 
+                    _="on htmx:afterRequest fetchLocations()"
+
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      viewBox="0 0 12 11"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6 1L1 6H2.42857V10.1667H4.57143V7.30952H7.42857V10.1667H9.57143V6H11L6 1Z"
+                        fill="#323232"
+                        stroke="#323232"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="leading-3 truncate">Shelter & Housing</span>
+                  </a>
+                  {% endif %}
+                  {% if is_food or is_not_filter %}
+                  <a
+                    class=" {% if is_food %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                    {% if is_food %}
+                    href="{% url 'map' %}"
+                    {% else %}
+                    href="{% url 'food' %}" 
+                    {% endif %}
+                    hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                    _="on htmx:afterRequest fetchLocations()"
+
+                  >
+                    <img
+                      src="{% static 'dist/img/icons/food-icon.svg' %}"
+                      class="w-4 h-4"
+                      alt=""
+                    />
+                    <span class="leading-3 truncate">Food</span>
+                  </a>
+                  {% endif %}
+                  {% if is_clothing or is_not_filter %}
+                  <a
+                    class=" {% if is_clothing %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                    {% if is_clothing %}
+                    href="{% url 'map' %}"
+                    {% else %}
+                    href="{% url 'clothing' %}" 
+                    {% endif %}
+                    hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                    _="on htmx:afterRequest fetchLocations()"
+                  >
+                  <img src="{% static 'dist/img/icons/clothing.svg' %}" class="w-4 h-4" alt="">
+                  <span class="leading-3 truncate">Clothing</span>
+                </a>
+                {% endif %}
+                {% if is_personal_care or is_not_filter %}
+                  <a
+                    class=" {% if is_personal_care %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                    {% if is_personal_care %}
+                    href="{% url 'map' %}"
+                    {% else %}
+                    href="{% url 'personal-care' %}" 
+                    {% endif %}
+                    hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                    _="on htmx:afterRequest fetchLocations()"
+                  >
+                  <img
+                    src="{% static 'dist/img/icons/personal-care.svg' %}"
+                    class="w-4 h-4"
+                    alt=""
+                  />
+                  <span class="leading-3 truncate">Personal care</span>
+                </a>
+                {% endif %}
+                {% if is_health or is_not_filter %}
+                <a
+                  class=" {% if is_health %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                  {% if is_health %}
+                  href="{% url 'map' %}"
+                  {% else %}
+                  href="{% url 'health' %}" 
+                  {% endif %}
+                  hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                  _="on htmx:afterRequest fetchLocations()"
+                >
+                    <img src="{% static 'dist/img/icons/health.svg' %}" class="w-4 h-4" alt="" />
+                    <span class="leading-3 truncate">Health</span>
+                </a>
+                {% endif %}
+                {% if is_other or is_not_filter %}
+                <a
+                  class=" {% if is_other %} bg-primary {% else %} bg-neutral-100 {% endif %} inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                  {% if is_other %}
+                  href="{% url 'map' %}"
+                  {% else %}
+                  href="{% url 'other-services' %}" 
+                  {% endif %}
+                  hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                  _="on htmx:afterRequest fetchLocations()"
+                >
+                  <img src="{% static 'dist/img/icons/dots.svg' %}" class="w-4 h-4" alt="" />
+                  <span class="leading-3 truncate">Other</span>
+                </a>
+                {% endif %}
+                <button class="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-gray-300 rounded-full text-xs py-1 px-3" _="on click log 'all filters open' then show #filters_popup then put 'true' into #is_advanced_filters.value" >
+                  <img src="{% static 'dist/img/icons/filters.svg' %}" class="w-4 h-4" alt="">
+                  <span class="leading-3 truncate">All Filters</span>
+                </button>
+              </div>
+            </div>
+
+            <!--               :class="[view === 'list' ? 'flex' : 'hidden', $store.locations.loading === true ? 'scrollbar-hide' : 'md:scrollbar-default md:scrollbar']"  -->
+            <div 
+              class="md:flex flex-col flex-1 overflow-y-auto scrollbar-hide md:scrollbar-thumb-primary md:scrollbar-w-2 md:scrollbar-track-rounded md:scrollbar-thumb-rounded md:scrollbar-track-primary/20"
+              id="locations_container"
+            >
+
+              <div 
+                class="flex-1 flex flex-col"
+              >
+              
+
+                <div class="text-sm px-6 py-4 flex items-center border-b border-dotted border-neutral-200 justify-between">
+                  <h1>
+                    <!-- <span x-show="$store.search.searchedQuery" x-cloak>
+                      <span x-text="$store.locations.currentLocations.length"></span>
+                      locations containing “<span translate="no" x-text="$store.search.searchedQuery"></span>”
+                    </span> -->
+                    
+                    <span>
+                      {% if 'shelter' in request.GET %}
+                        All popular Shelter & Housing locations
+                      {% elif 'food' in request.GET %}
+                        All popular Food locations
+                      {% elif 'clothing' in request.GET %}
+                        All popular Clothing locations
+                      {% elif 'personal_care' in request.GET %}
+                        All popular Personal care locations
+                      {% elif 'health' in request.GET %}
+                        All popular Health locations
+                      {% elif 'other' in request.GET %}
+                        All popular Other locations
+                      {% else %}
+                        All service locations
+                      {% endif %}
+                    </span>
+                  </h1>
+                </div>
+
+                <!-- start looping  -->
+                <!--  :style="{ order: $store.geo.userLocation ? calculateDistanceInMiles($el.dataset.lat, $el.dataset.lng, $store.geo.userLocation.lat, $store.geo.userLocation.lng) : 1 }" -->
+                {% if locations %}
+                <ul id="locations"
+                  class=" flex flex-1 flex-col divide-y divide-dotted divide-neutral-200 relative"
+                >
+                  {% for location in locations %}
+                    <!--  x-show="getPagedDataIds().includes($el.dataset.id)" -->
+                    <li 
+                      data-id="{{ location.id }}" 
+                      data-lat="{{location.lat}}"
+                      data-lng="{{location.lng}}"
+                      class="p-6"
+                    >
+                    
+                    <div translate="no" class="location_name text-dark text-lg sm:text-xl font-medium mb-1">
+                      {{ location.name }}
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500 mb-1" translate="no">
+                          {{ location.location_name }}
+                      </p>
+                      <p class="flex items-center gap-x-1 text-xs text-neutral-500">
+                        <span translate="no" class="truncate">
+                          {{ location.area }}
+                        </span>
+                        <!-- <span >•</span> -->
+                        <!-- <span x-show="$store.geo.userLocation" class="truncate" x-cloak>
+                            <span 
+                              x-text="$store.geo.userLocation ? calculateDistanceInMiles($el.dataset.lat, $el.dataset.lng, $store.geo.userLocation.lat, $store.geo.userLocation.lng) : '0'"
+                              data-lat="{{location.lat}}"
+                              data-lng="{{location.lng}}"
+                            ></span> mi 
+                        </span> -->
+                        <span class="text-success truncate"> ✓ Validated <span> {{ location.last_updated }} </span></span>
+                      </p>
+                    </div>
+
+                    {% if location.closed %}
+                      <div class="mt-3">
+                        <div class="flex space-x-1.5">
+                          <span class="text-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                              <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+
+                          <div>
+                            <p class="text-dark mb-0.5 font-medium text-sm">Closed</p>
+                            {% if "info" in location %}
+                              <p class="text-dark font-normal text-sm">
+                                {{ location.info.0 }}
+                              </p>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    {% else %}
+                      <ul class="mt-3 flex gap-2 flex-col xl:pr-20">
+                          {% if location.accommodation_services.services|length >= 1 %}
+                          <!-- :class="{'order-first': $store.filters.serviceType === 'shelters-housing'}" -->
+                            <li 
+                              class="flex space-x-1.5 text-sm text-dark"
+                            >
+                              <span class="flex-shrink-0">
+                                <svg width="16"
+                                    height="20"
+                                    viewBox="0 0 16 20"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M8 5L2 11H3.71429V16H6.28571V12.5714H9.71429V16H12.2857V11H14L8 5Z" fill="#323232" stroke="#323232" stroke-width="1.5" stroke-linejoin="round" />
+                                </svg>
+                              </span>
+                              <p>
+                                {% for item in location.accommodation_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+
+                          {% if location.food_services.services|length >= 1 %}
+                            <li class="flex space-x-1.5 text-sm text-dark" :class="{'order-first': $store.filters.serviceType === 'food'}">
+                              <img src="{% static 'dist/img/icons/food-icon.svg' %}" class="flex-shrink-0 max-h-5" alt="" />
+                              <p>
+                                {% for item in location.food_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+
+                          {% if location.clothing_services.services|length >= 1 %}
+                          <!-- :class="{'order-first': $store.filters.serviceType === 'clothing'}" -->
+                            <li class="flex space-x-1.5 text-sm text-dark" >
+                              <img src="{% static "dist/img/icons/clothing.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                              <p>
+                                {% for item in location.clothing_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+
+                          {% if location.personal_care_services.services|length >= 1 %}
+                            <li class="flex space-x-1.5 text-sm text-dark">
+                              <img src="{% static "dist/img/icons/personal-care.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                              <p>
+                                {% for item in location.personal_care_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+
+                          {% if location.health_services.services|length >= 1 %}
+                            <li class="flex space-x-1.5 text-sm text-dark">
+                              <img src="{% static "dist/img/icons/health.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                              <p>
+                                {% for item in location.health_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+
+                          {% if location.other_services.services|length >= 1 %}
+                            <li class="flex space-x-1.5 text-sm text-dark">
+                              <img src="{% static "dist/img/icons/dots.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                              <p>
+                                {% for item in location.other_services.services %}
+                                  {{ item.name }} 
+                                  {% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                              </p>
+                            </li>
+                          {% endif %}
+                      </ul>  
+                    {% endif %}
+
+                    
+                    <div class="mt-3">
+                      <a
+                        href="{{location.slug}}"
+                        class="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
+                        hx-get="{{location.slug}}" hx-push-url="true" hx-swap="outerHTML" hx-select="#left_panel" hx-target="#left_panel"
+                        _=" on htmx:afterRequest switchActiveMarker('{{location.id}}')"
+                      >
+                        <span>More Details</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          class="w-5 h-5"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                      </a>
+                    </div> 
+                    </li>
+                  {% endfor %}
+
+                  <script  type="text/javascript">
+          window.mapContainerr = document.getElementById('map_container');
+              window.locations_containerr = document.getElementById('locations_container');
+          
+                  if (window.view == 'map') {
+                    window.locations_containerr.classList.add('hidden');
+                    window.locations_containerr.classList.remove('flex');
+                    window.mapContainerr.classList.add('block')
+                    window.mapContainerr.classList.remove('hidden')
+                  } 
+                  if (window.view == 'list') {
+                    mapContainerr.classList.add('hidden');
+                    mapContainerr.classList.remove('block');
+                    window.locations_containerr.classList.add('flex')
+                    window.locations_containerr.classList.remove('hidden')
+                  }
+          
+                  </script>
+
+                </ul>
+     
+                <div class="p-6 border-t border-neutral-100 mb-14 md:mb-0">
+                  <div class="flex items-center justify-between">
+                  
+                    <a 
+                      class="text-dark inline-flex space-x-1 disabled:text-muted {% if not has_previous %} text-muted cursor-not-allowed {% endif %}"
+                      href="{% if has_previous %}?page={{ previous_page_number }}{% else %}#{% endif %}"
+                      hx-target="#locations_container" hx-push-url="true" hx-swap="innerHTML"
+                       hx-boost="true" hx-select="#locations_container"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                      </svg>
+                      <span>Previous</span>                    
+                    </a>
+                    <div class="text-dark font-medium">
+                      <span> {{page}} </span> of <span>{{total_pages}}</span>
+                    </div>
+                      <a 
+                        class="inline-flex space-x-1 disabled:text-muted {% if has_next %} text-dark {% else %} text-muted cursor-not-allowed {% endif %}"
+                        href="{% if has_next %}?page={{ next_page_number }} {% else %}# {% endif %}"
+                        hx-target="#locations_container" hx-push-url="true" hx-swap="innerHTML"
+                       hx-boost="true" hx-select="#locations_container"
+                      >
+                        <span>Next</span>                    
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </a>
+                   
+                  </div>
+                </div>
+
+                {% else %}
+                <div class="" >
+                  <div class="p-5">
+                    <div class="flex items-center justify-center flex-col p-5 sm:p-7">
+                      <img
+                        src="{% static 'dist/img/icons/search-icon.png' %}"
+                        class="w-9 h-9 max-h-9 object-contain"
+                        alt=""
+                      />
+                      <!-- <p class="mt-5 text-base text-dark text-center" x-show="$store.search.searchedQuery" x-cloak>
+                        Nothing matched for “<span translate="no" x-text="$store.search.searchedQuery"></span>”. <br> Please try another word or
+                        browse a category below
+                      </p> -->
+                      <p class="mt-5 text-base text-dark text-center">
+                        No item found. Please try to change filters.
+                      </p>
+                    </div>
+        
+                    <ul
+                      class="flex flex-col divide-y divide-gray-300"
+                    >
+                    <li>
+                      <a
+                        href="{% url 'shelters-housing' %}"
+                        class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200" hx
+                      >
+                        <img
+                          src="{% static 'dist/img/icons/home-icon.svg' %}"
+                          width="32"
+                          class="object-contain flex-shrink-0"
+                          alt=""
+                        />
+                        <div class="flex-grow">
+                          <div
+                            class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                          > Shelter & Housing </div>
+                        </div>
+                        <span
+                          class="text-gray-700 transition group-hover:translate-x-1"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="{% url 'clothing' %}"
+                        class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200"
+                      >
+                        <img
+                          src="{% static 'dist/img/icons/clothing-icon.svg' %}"
+                          width="32"
+                          class="object-contain flex-shrink-0"
+                          alt=""
+                        />
+                        <div class="flex-grow">
+                          <div
+                            class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                          > Clothing </div>
+                        </div>
+                        <span
+                          class="text-gray-700 transition group-hover:translate-x-1"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="{% url 'food' %}"
+                        class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200"
+                      >
+                        <img
+                          src="{% static 'dist/img/icons/food-icon-2.svg' %}"
+                          width="32"
+                          class="object-contain flex-shrink-0"
+                          alt=""
+                        />
+                        <div class="flex-grow">
+                          <div
+                            class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                          > Food </div>
+                        </div>
+                        <span
+                          class="text-gray-700 transition group-hover:translate-x-1"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="{% url 'personal-care' %}"
+                        class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200"
+                      >
+                        <img
+                          src="{% static 'dist/img/icons/personal-care-2.svg' %}"
+                          width="32"
+                          class="object-contain flex-shrink-0"
+                          alt=""
+                        />
+                        <div class="flex-grow">
+                          <div
+                            class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                          > Personal Care </div>
+                        </div>
+                        <span
+                          class="text-gray-700 transition group-hover:translate-x-1"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="{% url 'health' %}"
+                        class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200"
+                      >
+                        <img
+                          src="{% static 'dist/img/icons/health-icon.svg' %}"
+                          width="32"
+                          class="object-contain flex-shrink-0"
+                          alt=""
+                        />
+                        <div class="flex-grow">
+                          <div
+                            class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                          > Health </div>
+                        </div>
+                        <span
+                          class="text-gray-700 transition group-hover:translate-x-1"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    </li>
+                      <li>
+                        <a
+                          href="{% url 'other-services' %}"
+                          class="flex items-center cursor-pointer space-x-4 group py-5 rounded-md hover:bg-gray-100 transition duration-200"
+                        >
+                          <img
+                            src="{% static 'dist/img/icons/dots-icon.svg' %}"
+                            width="32"
+                            class="object-contain flex-shrink-0"
+                            alt=""
+                          />
+                          <div class="flex-grow">
+                            <div
+                              class="underline text-gray-800 text-sm group-hover:text-gray-700 transition group-hover:no-underline font-semibold"
+                            > Other </div>
+                          </div>
+                          <span
+                            class="text-gray-700 transition group-hover:translate-x-1"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {% endif %}
+
+              </div>
+
+            </div>
+            
+          </div>
+
+          {% else  %}
+            {% include 'location_details.html' %}
+          {% endif %}
+
+          </div>
+
+
+        <!-- :class="[view === 'map' ? 'block' : 'hidden']" -->
+        <div id="map_container" class="w-full hidden md:block md:w-1/2 lg:w-2/3 bg-gray-300 h-full flex-1 relative">
+            <div id="map" class="w-full h-full"></div>
+          <div 
+            id="recenter-btn" 
+            class="absolute top-2 right-2 z-[1] bg-white/95 flex items-center justify-center cursor-pointer w-9 h-9 rounded"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M18.0294 0.0566351L0.413683 7.84112C0.144651 7.96016 -0.0198463 8.23615 0.00343285 8.52942C0.026712 8.82269 0.232687 9.06927 0.517131 9.14438L7.12859 10.8845C7.6114 11.0114 7.98859 11.3883 8.11596 11.871L9.85611 18.4824C9.93099 18.767 10.1774 18.9732 10.4707 18.9967C10.764 19.0202 11.0402 18.8558 11.1594 18.5868L18.9402 0.971044C19.0552 0.709941 18.9985 0.404985 18.7971 0.202812C18.5957 0.000638069 18.291 -0.0573878 18.0294 0.0566351Z" fill="#5A87FF"/>
+            </svg>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+        <!-- mobile detail popup -->
+        <div 
+        x-transition
+        id="mobile_tray"
+        class="p-5 fixed md:hidden bottom-0 inset-x-0 rounded-t-lg z-30 bg-white hidden"
+      >
+      {% if location %}
+      <script>
+        window.tray =  document.getElementById('mobile_tray');
+           window.tray.classList.remove('hidden');
+           window.tray.classList.add('block');
+
+        window.closeTray = function() {
+          window.tray.classList.add('hidden');
+           window.tray.classList.remove('block');
+           removeActiveMarker()
+        }
+      </script>
+      {% endif %}
+        <div class="flex items-start justify-between">
+          <h3 class="text-dark text-base font-medium" x-text="$store.currentLocation.name">
+            {{ location.name }}
+          </h3>
+          <button onclick="closeTray()" class="text-dark ml-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div>
+          <p class="text-xs text-neutral-500 mb-1" translate="no">
+              {{ location.location_name }}
+          </p>
+          <p class="flex items-center gap-x-1 text-xs text-neutral-500">
+            <span translate="no" class="truncate">
+              {{ location.area }}
+            </span>
+            <!-- <span >•</span> -->
+            <!-- <span x-show="$store.geo.userLocation" class="truncate" x-cloak>
+                <span 
+                  x-text="$store.geo.userLocation ? calculateDistanceInMiles($el.dataset.lat, $el.dataset.lng, $store.geo.userLocation.lat, $store.geo.userLocation.lng) : '0'"
+                  data-lat="{{location.lat}}"
+                  data-lng="{{location.lng}}"
+                ></span> mi 
+            </span> -->
+            <span class="text-success truncate"> ✓ Validated <span> {{ location.last_updated }} </span></span>
+          </p>
+        </div>
+
+        {% if location.closed %}
+          <div class="mt-3">
+            <div class="flex space-x-1.5">
+              <span class="text-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                </svg>
+              </span>
+
+              <div>
+                <p class="text-dark mb-0.5 font-medium text-sm">Closed</p>
+                {% if "info" in location %}
+                  <p class="text-dark font-normal text-sm">
+                    {{ location.info.0 }}
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <ul class="mt-3 flex gap-2 flex-col xl:pr-20">
+              {% if location.accommodation_services.services|length >= 1 %}
+              <!-- :class="{'order-first': $store.filters.serviceType === 'shelters-housing'}" -->
+                <li 
+                  class="flex space-x-1.5 text-sm text-dark"
+                >
+                  <span class="flex-shrink-0">
+                    <svg width="16"
+                        height="20"
+                        viewBox="0 0 16 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 5L2 11H3.71429V16H6.28571V12.5714H9.71429V16H12.2857V11H14L8 5Z" fill="#323232" stroke="#323232" stroke-width="1.5" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                  <p>
+                    {% for item in location.accommodation_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+
+              {% if location.food_services.services|length >= 1 %}
+                <li class="flex space-x-1.5 text-sm text-dark" :class="{'order-first': $store.filters.serviceType === 'food'}">
+                  <img src="{% static 'dist/img/icons/food-icon.svg' %}" class="flex-shrink-0 max-h-5" alt="" />
+                  <p>
+                    {% for item in location.food_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+
+              {% if location.clothing_services.services|length >= 1 %}
+              <!-- :class="{'order-first': $store.filters.serviceType === 'clothing'}" -->
+                <li class="flex space-x-1.5 text-sm text-dark" >
+                  <img src="{% static "dist/img/icons/clothing.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                  <p>
+                    {% for item in location.clothing_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+
+              {% if location.personal_care_services.services|length >= 1 %}
+                <li class="flex space-x-1.5 text-sm text-dark">
+                  <img src="{% static "dist/img/icons/personal-care.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                  <p>
+                    {% for item in location.personal_care_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+
+              {% if location.health_services.services|length >= 1 %}
+                <li class="flex space-x-1.5 text-sm text-dark">
+                  <img src="{% static "dist/img/icons/health.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                  <p>
+                    {% for item in location.health_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+
+              {% if location.other_services.services|length >= 1 %}
+                <li class="flex space-x-1.5 text-sm text-dark">
+                  <img src="{% static "dist/img/icons/dots.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
+                  <p>
+                    {% for item in location.other_services.services %}
+                      {{ item.name }} 
+                      {% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                </li>
+              {% endif %}
+          </ul>  
+        {% endif %}
+
+        
+        <div class="mt-3">
+          <a
+            href="{{location.slug}}"
+            class="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
+            hx-get="{{location.slug}}" hx-push-url="true" hx-swap="outerHTML" hx-select="#left_panel" hx-target="#left_panel"
+            _=" on htmx:afterRequest switchActiveMarker('{{location.id}}')"
+          >
+            <span>More Details</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </a>
+        </div> 
+      </div>
+
+
+
+  </div>
+
+  <script>
+      
+  </script>
+  <script src="{% static 'dist/js/map_2.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "dev-css": "npx tailwindcss -i static/css/tailwind.css -o static/dist/css/tailwind.css --watch",
+    "build:css": "npx tailwindcss -i static/css/tailwind.css -o static/dist/css/tailwind.css --minify",
+    "dev-js": "npx esbuild static/js/app.js --bundle --outfile=static/dist/js/app2.js --watch",
+    "dev-django": "python manage.py runserver 127.0.0.1:8000",
+    "dev-bs": "browsersync start",
+    "dev": "npm-run-all --parallel dev-css dev-js dev-django",
+    "dev2": "npm-run-all --parallel dev-css dev-js"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.4",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.9",
+    "autoprefixer": "^10.4.14",
+    "browsersync": "^0.0.1-security",
+    "esbuild": "^0.15.7",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.14",
+    "tailwind-scrollbar": "^3.0.4",
+    "tailwind-scrollbar-hide": "^1.1.7",
+    "tailwindcss": "^3.3.3",
+    "tailwindcss-debug-screens": "^2.2.1"
+  },
+  "dependencies": {
+    "@alpinejs/collapse": "^3.12.3",
+    "alpinejs": "^3.12.3",
+    "geolib": "^3.3.4",
+    "pinecone-router": "^3.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

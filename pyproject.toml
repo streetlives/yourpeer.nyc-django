@@ -1,0 +1,15 @@
+[project]
+license = {text = "MIT License"}
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+]
+
+[tool.djlint]
+format_css=true
+format_js=true
+
+[tool.djlint.css]
+indent_size=4
+
+[tool.djlint.js]
+indent_size=4

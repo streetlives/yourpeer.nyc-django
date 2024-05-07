@@ -1,0 +1,623 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}Details{% endblock %}
+{% block content %}
+    <div class="w-full flex flex-col" x-data="{show: false}">
+        <!-- Overlay nav -->
+        <div x-show="show"
+             style="display: none"
+             class="bg-dark fixed z-30 w-full h-full inset-0"
+             x-transition.opacity>{% include "shared/menu_innerhtml.html" %}</div>
+        <!-- header -->
+        <nav class="flex items-center justify-between px-5 py-4 bg-white shadow-sm">
+            <div class="flex items-center">
+                <button class="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
+                        @click="show = !show">
+                    <!-- Heroicon -- 'bars-3' -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         x-show="!show"
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         class="w-6 h-6">
+                        <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div class="text-sm ml-3">
+                    <span class="text-black font-bold">YourPeer</span>NYC
+                </div>
+            </div>
+            <a href="/"
+               class="inline-flex items-center text-[10px] sm:text-xs uppercase font-medium text-danger space-x-1">
+                <span class="inline-block">Quick Exit</span>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24"
+                     fill="currentColor"
+                     class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                </svg>
+            </a>
+        </nav>
+    </div>
+    <main x-data="{ active: 'overview', sections: $el.querySelectorAll('section'), }"
+          @scroll.window=" $el.querySelectorAll('section').forEach(function(v, i) { let rect = v.getBoundingClientRect().y; if(rect < window.innerHeight-200){ active = sections[i].id; } }) ">
+        <!-- Scrollspy -->
+        <div class="flex bg-primary w-full px-3 md:hidden sticky top-0 z-10 max-w-full">
+            <a href="#overview"
+               class="inline-block py-4 px-2 text-xs text-black border-b-4 transition"
+               :class="[active === 'overview' ? ' border-white font-semibold' : 'border-transparent' ]">Overview</a>
+            <a href="#contact"
+               class="inline-block py-4 px-2 text-xs text-black border-b-4 transition"
+               :class="[active === 'contact' ? ' border-white font-semibold' : 'border-transparent' ]">Contact</a>
+            <a href="#shelter"
+               class="inline-block py-4 px-2 text-xs text-black border-b-4 transition"
+               :class="[active === 'shelter' ? ' border-white font-semibold' : 'border-transparent' ]">Shelter</a>
+            <a href="#Food"
+               class="inline-block py-4 px-2 text-xs text-black border-b-4 transition"
+               :class="[active === 'Food' ? ' border-white font-semibold' : 'border-transparent' ]">Food</a>
+            <a href="#medicalCare"
+               class="inline-block py-4 px-2 text-xs text-black border-b-4 transition"
+               :class="[active === 'medicalCare' ? ' border-white font-semibold' : 'border-transparent' ]">
+                Medical Care
+            </a>
+        </div>
+        <section id="overview">
+            <!-- For Tablet -->
+            <div class="h-[354px] w-full relative hidden md:flex">
+                <div class="w-1/3 flex-shrink-0 h-full">
+                    <img src="{% static "dist/img/details-1.png" %}"
+                         class="h-full w-full object-cover object-center"
+                         alt="" />
+                </div>
+                <div class="w-1/3 flex-shrink-0 h-full">
+                    <img src="{% static "dist/img/detail-2.png" %}"
+                         class="h-full w-full object-cover object-center"
+                         alt="" />
+                </div>
+                <div class="w-1/3 flex-shrink-0 h-full">
+                    <img src="{% static "dist/img/map-image.png" %}"
+                         class="h-full w-full object-cover object-center"
+                         alt="" />
+                </div>
+                <div class="absolute inset-0 z-[5] w-full h-2/3 bottom-0 mt-auto bg-gradient-to-t from-black via-white/30 to-white/0">
+                </div>
+                <div class="absolute z-10 bottom-0 left-0 w-full">
+                    <div class="w-full px-10 pb-6 flex items-end justify-between">
+                        <div>
+                            <h1 class="text-4xl text-white font-medium mb-3 max-w-sm">The Seek Steps Center</h1>
+                            <p class="underline text-white text-sm mb-3">Shelter • Food • Medical care • Wi-fi</p>
+                            <div class="flex items-center space-x-2 text-white">
+                                <span class="text-sm">East Village</span>
+                                <img src="{% static "dist/img/icons/walking.png" %}" class="w-5 object-contain" alt="" />
+                                <span class="mr-5 text-xs">3min walk</span>
+                                <span class="inline-flex items-center text-sm text-green-500 space-x-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Open now</span>
+                                    <span class="text-white">• Closes at 9PM</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[#5A87FF] text-sm text-right flex space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Peer-verified 30 days ago</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- For Mobile -->
+            <div class="bg-white max-w-full w-full py-5 md:hidden">
+                <div class="px-5">
+                    <h1 class="text-black text-2xl font-medium mb-4">
+                        The Seek Steps
+                        <br />
+                        Center
+                    </h1>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm">East Village</span>
+                            <img src="{% static "dist/img/icons/walking-dark.png" %}"
+                                 class="w-5 object-contain flex-shrink-0"
+                                 alt="" />
+                            <span class="text-xs">3min walk</span>
+                        </div>
+                        <div>
+                            <p class="text-[#5A87FF] text-sm text-right flex space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Peer-verified 30 days ago</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- carousel -->
+                <div x-data="{ swiper: null }"
+                     x-init="swiper = new Swiper($refs.container, { direction: 'horizontal', slidesPerView: 'auto', spaceBetween: 10, grabCursor: true, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', }, })"
+                     x-ref="container"
+                     class="swiper w-full h-auto mt-5">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide !w-2/5">
+                            <img src="{% static "dist/img/details-1.png" %}"
+                                 class="h-52 w-full object-cover object-center"
+                                 alt="" />
+                        </div>
+                        <div class="swiper-slide !w-2/5">
+                            <img src="{% static "dist/img/detail-2.png" %}"
+                                 class="h-52 w-full object-cover object-center"
+                                 alt="" />
+                        </div>
+                        <div class="swiper-slide !w-2/5">
+                            <img src="{% static "dist/img/map-image.png" %}"
+                                 class="h-52 w-full object-cover object-center"
+                                 alt="" />
+                        </div>
+                    </div>
+                    <div class="swiper-button-next !w-8 !h-8 after:!text-sm rounded-full !text-black !border-black !border-2 !bg-white">
+                    </div>
+                    <div class="swiper-button-prev !w-8 !h-8 after:!text-sm rounded-full !text-black !border-black !border-2 !bg-white">
+                    </div>
+                </div>
+                <div class="mt-5 px-5">
+                    <div class="pb-4 border-b border-gray-300">
+                        <div class="flex items-center space-x-2 text-sm mb-2">
+                            <span class="text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="text-green-600">Open now</span> • Closes at 9PM
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm mb-2 text-gray-800">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                </svg>
+                            </span>
+                            <div>Shelter • Food • Medical care • Wi-fi</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm mb-2 text-gray-800">
+                            <img src="{% static "dist/img/icons/hotel-bed.svg" %}"
+                                 class="w-5 max-h-5 flex-shrink-0 object-contain"
+                                 alt="" />
+                            <div>12 beds • Call for latest</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="desctiption">
+            <div class="w-full bg-white px-5 md:flex md:py-10">
+                <div class="w-full md:w-1/2 lg:w-3/5 xl:w-2/3 md:px-5 lg:pr-10">
+                    <p class="text-sm text-gray-800 max-w-2xl pb-8 border-b md:border-none border-gray-200">
+                        This service provides housing and supportive services to youth
+                        facing homelessness. They help young people transform their lives
+                        and put them on a path to independence.
+                    </p>
+                    <div class="items-center space-x-2 hidden md:flex">
+                        <a href="#shelter"
+                           class="inline-block font-medium text-sm p-2 text-black">Shelter</a>
+                        <a href="#Food" class="inline-block text-sm p-2 text-gray-700">Shelter</a>
+                        <a href="#medicalCare" class="inline-block text-sm p-2 text-gray-700">Medical Care</a>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 lg:w-2/5 xl:w-1/3"></div>
+            </div>
+        </section>
+        <div id="shelter">
+            <div class="w-full md:flex">
+                <div class="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 md:order-1">
+                    <section id="contact"
+                             class="bg-white md:py-5 pt-5 md:-mt-48 lg:-mt-44 xl:-mt-40">
+                        <div class="px-5 xl:px-10 mb-4">
+                            <div class="flex justify-between divide-x divide-gray-200">
+                                <div class="px-2 flex flex-col space-y-3 items-center justify-center">
+                                    <div class="text-xs font-medium text-gray-800 text-center">
+                                        Friendly
+                                        <br />
+                                        staff
+                                    </div>
+                                    <img src="{% static "dist/img/icons/certified-ribbon-2.svg" %}"
+                                         class="flex-shrink-0 w-9 max-h-9 object-contain"
+                                         alt="" />
+                                    <div class="text-xs text-gray-800 text-center">85%</div>
+                                </div>
+                                <div class="px-2 flex flex-col space-y-3 items-center justify-center">
+                                    <div class="text-xs font-medium text-gray-800 text-center">
+                                        Helpful
+                                        <br />
+                                        services
+                                    </div>
+                                    <img src="{% static "dist/img/icons/check-shield.svg" %}"
+                                         class="flex-shrink-0 w-9 max-h-9 object-contain"
+                                         alt="" />
+                                    <div class="text-xs text-gray-800 text-center">92%</div>
+                                </div>
+                                <div class="px-2 flex flex-col space-y-3 items-center justify-center">
+                                    <div class="text-xs font-medium text-gray-800 text-center">
+                                        Clean
+                                        <br />
+                                        facilities
+                                    </div>
+                                    <img src="{% static "dist/img/icons/remove-badge.svg" %}"
+                                         class="flex-shrink-0 w-9 max-h-9 object-contain"
+                                         alt="" />
+                                    <div class="text-xs text-gray-800 text-center">44%</div>
+                                </div>
+                                <div class="px-2 flex flex-col space-y-3 items-center justify-center">
+                                    <div class="text-xs font-medium text-gray-800 text-center">
+                                        Safe
+                                        <br />
+                                        space
+                                    </div>
+                                    <img src="{% static "dist/img/icons/gaming-trophy-check.svg" %}"
+                                         class="flex-shrink-0 w-9 max-h-9 object-contain"
+                                         alt="" />
+                                    <div class="text-xs text-gray-800 text-center">73%</div>
+                                </div>
+                                <div class="px-2 flex flex-col space-y-3 items-center justify-center">
+                                    <div class="text-xs font-medium text-gray-800 text-center">
+                                        Queer
+                                        <br />
+                                        friendly
+                                    </div>
+                                    <img src="{% static "dist/img/icons/gender-transgender.svg" %}"
+                                         class="flex-shrink-0 w-9 max-h-9 object-contain"
+                                         alt="" />
+                                    <div class="text-xs text-gray-800 text-center">81%</div>
+                                </div>
+                            </div>
+                            <p class="text-center text-xs text-gray-700 my-4">Based on 37 verified responses</p>
+                            <a href="#" class="primary-button w-full mb-5 hidden md:block">Make a reservation</a>
+                        </div>
+                        <div class="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
+                            <div class="flex py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <div class="text-gray-700 text-sm mb-1">123 Bowery, New York, NY 10010</div>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="text-xs leading-3 uppercase font-bold text-white w-5 h-5 rounded-full text-center p-0 flex items-center justify-center bg-[#FF8A00]">
+                                            B
+                                        </div>
+                                        <div class="text-xs leading-3 uppercase font-bold text-white w-5 h-5 rounded-full text-center p-0 flex items-center justify-center bg-[#FF8A00]">
+                                            d
+                                        </div>
+                                        <div class="text-xs leading-3 uppercase font-bold text-white w-5 h-5 rounded-full text-center p-0 flex items-center justify-center bg-[#FF8A00]">
+                                            f
+                                        </div>
+                                        <div class="text-xs leading-3 uppercase font-bold text-white w-5 h-5 rounded-full text-center p-0 flex items-center justify-center bg-[#FF8A00]">
+                                            m
+                                        </div>
+                                        <div class="text-xs leading-3 uppercase font-bold text-white w-5 h-5 rounded-full text-center p-0 flex items-center justify-center bg-[#56BD66]">
+                                            6
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <div class="text-gray-700 text-sm">212-555-1234</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <a href="mailto:questions@ssc.org"
+                                       class="text-gray-700 hover:underline text-sm">questions@ssc.org</a>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <a href="//seekstepscenter.org"
+                                       target="_blank"
+                                       class="text-gray-700 hover:underline text-sm">seekstepscenter.org</a>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <div class="text-gray-700 text-sm">English • Español • 中文</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <img src="{% static "dist/img/icons/wheelchair.svg" %}"
+                                         class="w-6 max-h-6 object-contain"
+                                         alt="" />
+                                </span>
+                                <div>
+                                    <div class="text-gray-700 text-sm">Wheelchair</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center py-3 px-5 xl:px-10 space-x-3">
+                                <span>
+                                    <img src="{% static "dist/img/icons/shield-plus.svg" %}"
+                                         class="w-6 max-h-6 object-contain"
+                                         alt="" />
+                                </span>
+                                <div>
+                                    <div class="text-gray-700 text-sm">Masks and temperature checks required</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <div class="w-full md:w-1/2 lg:w-3/5 xl:w-2/3 pt-5">
+                    <div class="px-5 lg:pr-10">
+                        <section id="shelter" class="bg-white rounded-lg">
+                            <div class="flex items-center justify-between py-4 px-5 border-b border-gray-200">
+                                <div class="text-lg font-semibold underline text-black">Shelter</div>
+                                <div>
+                                    <img src="{% static "dist/img/icons/home-icon.svg" %}"
+                                         class="w-8 max-h-8 object-contain"
+                                         alt="" />
+                                </div>
+                            </div>
+                            <div class="py-4 px-5 divide-y divide-gray-200">
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Services</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">
+                                            Overnight emergency shelter and referrals to medium-term
+                                            housing options for young people 18-24 years old.
+                                        </li>
+                                        <li class="text-sm text-gray-700">
+                                            Support is also available for young people seeking
+                                            private rental accomodations.
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Eligibility</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">18-24 yrs old</li>
+                                        <li class="text-sm text-gray-700">Haven’t been assigned to other shelters</li>
+                                        <li class="text-sm text-gray-700">
+                                            ID (for housing options and rental accomodations)
+                                            <span class="text-blue-600">Note:</span>j 1 week grace
+                                            period before ID is required
+                                        </li>
+                                        <li class="text-sm text-gray-700">Unemployment verification letter (for housing options)</li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Hours</h4>
+                                    <div class="flex-col space-y-2">
+                                        <span class="inline-flex items-center text-sm text-green-500 space-x-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Open now
+                                            <span class="text-gray-800">• Doors close at 9PM</span>
+                                        </span>
+                                        <div class="text-sm text-gray-700">
+                                            For overnight shelters, make a bed reservation before
+                                            2PM
+                                        </div>
+                                        <div class="text-sm text-gray-700">
+                                            For housing referrals and rental assistance, make an
+                                            appointment below between 10AM-4PM on weekdays.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="Food" class="bg-white rounded-lg mt-8">
+                            <div class="flex items-center justify-between py-4 px-5 border-b border-gray-200">
+                                <div class="text-lg font-semibold underline text-black">Food</div>
+                                <div>
+                                    <img src="{% static "dist/img/icons/food-icon.png" %}"
+                                         class="w-8 max-h-8 object-contain"
+                                         alt="" />
+                                </div>
+                            </div>
+                            <div class="py-4 px-5 divide-y divide-gray-200">
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">What you can get</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">Lunch, dinner, brown-bag, and food pantry</li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Eligibility</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">Anyone</li>
+                                        <li class="text-sm text-gray-700">Walk-in</li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Hours</h4>
+                                    <div class="flex-col space-y-2">
+                                        <span class="inline-flex items-center text-sm text-red-500 space-x-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-red-500">Closed</span>
+                                            <span class="text-gray-800">• Reopens at 4 PM</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="medicalCare" class="bg-white rounded-lg mt-8">
+                            <div class="flex items-center justify-between py-4 px-5 border-b border-gray-200">
+                                <div class="text-lg font-semibold underline text-black">Medical Care</div>
+                                <div>
+                                    <img src="{% static "dist/img/icons/health-icon.png" %}"
+                                         class="w-8 max-h-8 object-contain"
+                                         alt="" />
+                                </div>
+                            </div>
+                            <div class="py-4 px-5 divide-y divide-gray-200">
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">What you can get</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">Therapy, clinic, medicine</li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Eligibility</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li class="text-sm text-gray-700">Anyone</li>
+                                    </ul>
+                                </div>
+                                <div class="py-4">
+                                    <h4 class="text-base mb-3 text-black font-medium">Hours</h4>
+                                    <div class="flex-col space-y-2">
+                                        <span class="inline-flex items-center text-sm text-green-700 space-x-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-green-700">Open now</span>
+                                            <span class="text-gray-800">• Last appointment is at 5 PM</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="md:px-5 lg:pr-10">
+                        <footer class="bg-black px-5 py-8 mt-8">
+                            <div class="flex space-x-7">
+                                <a href="#" class="hover:brightness-75 transition">
+                                    <img src="{% static "dist/img/icons/social-media-facebook-1.svg" %}"
+                                         class="w-6 h-6 object-contain"
+                                         alt="" />
+                                </a>
+                                <a href="#" class="hover:brightness-75 transition">
+                                    <img src="{% static "dist/img/icons/social-media-twitter.svg" %}"
+                                         class="w-6 h-6 object-contain"
+                                         alt="" />
+                                </a>
+                                <a href="#" class="hover:brightness-75 transition">
+                                    <img src="{% static "dist/img/icons/social-instagram.svg" %}"
+                                         class="w-6 h-6 object-contain"
+                                         alt="" />
+                                </a>
+                            </div>
+                            <div class="flex flex-col mt-8">
+                                <a href="#"
+                                   class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Donate to Us</a>
+                                <a href="#"
+                                   class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Leave Feedback</a>
+                            </div>
+                            <div class="flex flex-col mt-7">
+                                <a href="#"
+                                   class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Privacy Policy</a>
+                                <a href="#"
+                                   class="text-sm underline text-gray-300 hover:no-underline mb-2 inline-block">Terms of Use</a>
+                            </div>
+                            <p class="mt-12 text-gray-300 text-sm">&copy; Streetlives.nyc</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fixed z-10 bottom-5 left-1/2 -translate-x-1/2 md:hidden">
+            <a href="#" class="primary-button">Make a reservation</a>
+        </div>
+    </main>
+    <!-- Include Swiper slider -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+{% endblock %}

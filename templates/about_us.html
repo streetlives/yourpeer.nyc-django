@@ -1,0 +1,178 @@
+<!--
+Copyright (c) 2024 Streetlives, Inc.
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/licenses/MIT.
+--> 
+{% extends "_base.html" %} {% load static %} {% block title %}About YourPeer{% endblock %}
+{% block meta_desc%}YourPeer colloborates with peers, service providers, and stakeholders, to provide validated information, support and resources to empower NYC's unhoused community.{% endblock %}
+{% block content %}
+
+  <!-- Off canvas Menu -->
+  {% include 'shared/offcanvas_menu.html' %}
+
+  <!-- header -->
+  {% include 'shared/navbar.html' %}
+
+<section class="bg-white py-12 pt-28 lg:pt-32 lg:py-20">
+  <div class="px-5 max-w-3xl mx-auto">
+    <div class="flex flex-col items-center justify-center">
+      <h1 class="text-black text-2xl md:text-4xl mb-10 text-center font-extrabold">
+        About Us
+      </h1>
+      <p class="text-dark text-center mb-8">
+        YourPeer is a Streetlives product. Streetlives is a US nonprofit based in New York City. 
+      </p>      
+      <p class="text-dark text-center">
+        We build technology in collaboration with unhoused people, people with lived experience of homelessness, New York social service providers, government, funders, and other system stakeholders in a whole-of-community partnership.
+      </p>
+
+      <div class="flex justify-center">
+        <img
+          src="{% static 'dist/img/about-logo.png' %}"
+          class="object-contain max-h-52"
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonial  -->
+<section class="py-10 lg:py-20 bg-neutral-50">
+  <div class="px-5 max-w-5xl mx-auto">
+    <div
+      class="flex flex-col mb-8 items-center justify-center max-w-5xl mx-auto"
+    >
+      <h2 class="text-gray-900 font-bold text-xl md:text-3xl mb-6 text-center">
+        Our information is peer-validated
+      </h2>
+      <p class="text-dark text-base text-center">
+        YourPeer's social service information is validated by our information specialists who all have lived experiences navigating the support system. They work hard to collect social services' information and keep them up-to-date.
+      </p>
+    </div>
+
+    <div
+      id="aboutSwiperContainer"
+      class="swiper w-full h-auto"
+    >
+      <div class="swiper-wrapper py-12">
+        <div class="swiper-slide w-full">
+          <div class="px-6">
+            <div class="flex items-center justify-center mb-6">
+              <img
+                src="{% static 'dist/img/partnars/one.png' %}"
+                class="w-20 h-20 rounded-full object-cover object-center overflow-hidden  border-4 border-primary"
+                alt=""
+              />
+            </div>
+            <h3 class="text-gray-900 font-medium text-lg mb-2 text-center" translate="no">
+              doobneek (they/them)
+            </h3>
+            <div class="text-base text-gray-800 text-center">
+              I am passionate about helping others and participate in NYC DYCD’s plans to eradicate homelessness.
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide w-full">
+          <div class="px-6">
+            <div class="flex items-center justify-center mb-6">
+              <img
+                src="{% static 'dist/img/partnars/kiesha.jpg' %}"
+                class="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
+                alt=""
+              />
+            </div>
+            <h3 class="text-gray-900 font-medium text-lg mb-2 text-center" translate="no">
+              Kiesha (she/her)
+            </h3>
+            <div class="text-base text-gray-800 text-center">
+              Because of my previous work experience, I’m knowledgeable about health-related services.
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide w-full">
+          <div class="px-6">
+            <div class="flex items-center justify-center mb-6">
+              <img
+                src="{% static 'dist/img/gavallan.png' %}"
+                class="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
+                alt=""
+              />
+            </div>
+            <h3 class="text-gray-900 font-medium text-lg mb-2 text-center" translate="no">
+              Gavilán (he/him)
+            </h3>
+            <div class="text-base text-gray-800 text-center">
+              My background in user research, marketing, and lived experience helps develop and promote YourPeer.
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide w-full">
+          <div class="px-6">
+            <div class="flex items-center justify-center mb-6">
+              <img
+                src="{% static 'dist/img/partnars/anthony.png' %}"
+                class="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
+                alt=""
+              />
+            </div>
+            <h3 class="text-gray-900 font-medium text-lg mb-2 text-center">
+              Anthony (he/him)
+            </h3>
+            <div class="text-base text-gray-800 text-center">
+              I have experience working with students and families and personally navigating homelessness in NYC.
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide w-full">
+          <div class="px-6">
+            <div class="flex items-center justify-center mb-6">
+              <img
+                src="{% static 'dist/img/liz.jpg' %}"
+                class="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
+                alt=""
+              />
+            </div>
+            <h3 class="text-gray-900 font-medium text-lg mb-2 text-center">
+              Liz (she/her)
+            </h3>
+            <div class="text-base text-gray-800 text-center">
+              I'm naturally eager to support my community because I want the future generation to avoid facing my predicament.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="aboutSwiperPagination" class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-black px-5 py-8">
+  {% include 'shared/footer_innerhtml.html' %}
+</footer>
+
+<!-- Include Swiper slider -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<script>
+  var swiper = new Swiper('#aboutSwiperContainer', {
+              direction: 'horizontal',
+              pagination: {
+                el: '#aboutSwiperPagination',
+                clickable: true,
+                type: 'bullets',
+              },
+              grabCursor: true,
+              slidesPerView: '1',
+              breakpoints: {
+                740: {
+                  slidesPerView: 3,
+                  spaceBetween: 40,
+                }
+              } 
+            })
+</script>
+{% endblock %}

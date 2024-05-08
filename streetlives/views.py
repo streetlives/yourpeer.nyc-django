@@ -12,7 +12,7 @@ import requests
 import csv
 import math
 from django.http import HttpResponse, JsonResponse, HttpResponsePermanentRedirect, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render as _render
 from django.template import Template, Context
 from django.core.paginator import Paginator
 from v1.models import Locations 
@@ -35,8 +35,33 @@ from streetlives.sql import *
 from django.db.models.query import RawQuerySet
 from django.views.decorators.cache import cache_page
 import requests 
+from urllib.parse import urlparse, parse_qs
+from functools import partial
 
 DEFAULT_PAGE_SIZE=20
+
+# add default canonical_url parameter to all requests
+def render(*args, **kwargs):
+    context = None
+    if 'context' in kwargs:
+        context = kwargs['context']
+    elif len(args) >= 3:
+        context = args[2]
+    else:
+        context = {}
+        kwargs['context'] = context 
+
+    request = None
+    if 'request' in kwargs:
+        request = kwargs['request']
+    elif len(args) >= 1:
+        request = args[0]
+
+    if 'canonical_url' not in context:
+        canonical_url = request.build_absolute_uri(request.path)
+        context['canonical_url'] = canonical_url
+
+    return _render(*args, **kwargs)
 
 
 logger = logging.getLogger(__name__)
@@ -215,6 +240,10 @@ def map(request, slug=None, title=None, description=None, filters= None):
 
                 
     canonical_url = request.build_absolute_uri(request.path)
+    parsed_path = urlparse(request.get_full_path())
+    parsed_qs = parse_qs(parsed_path.query)
+    if 'page' in parsed_qs and len(parsed_qs['page']) == 1:
+        canonical_url = f'{canonical_url}?page={parsed_qs["page"][0]}'
 
     is_htmx = False
     if "HTTP_HX_PUSH_URL" in request.META:
@@ -420,6 +449,8 @@ def locations_slug(request, slug=None):
                 # response["HX-Push-Url"] = request.build_absolute_uri()
                 return response
 
+            canonical_url = request.build_absolute_uri(request.path)
+
             response =  render(
                 request,
                 "map/map.html",
@@ -432,6 +463,7 @@ def locations_slug(request, slug=None):
                     + this_location["name"]
                     + " | YourPeer",
                     "page_description": this_location["name"] + " | YourPeer",
+                    "canonical_url": canonical_url,
                 },
             )
     # print("HX_PUSH is " + request.META.get("HTTP_HX_PUSH_URL", False))

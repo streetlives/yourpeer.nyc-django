@@ -48,12 +48,6 @@ urlpatterns = [
     path("locations/<slug:slug>", views.locations_slug, name="location-detail"),
     path("locations/<slug:slug>/", RedirectView.as_view(pattern_name='location-detail',permanent=True), name="map-redirect"),
 
-      # special rules for locations changes
-    path("locations/race-track-chaplaincy-ny-division-jamaica", RedirectView.as_view(url="locations/race-track-chaplaincy-ny-division-elmont", permanent=True), name="race-track-chaplaincy-ny-division-jamaica"),
-
-    # end special rules 
-
-
     path("shelters-housing", views.shelters_housing_list, name="shelters-housing"),
     path("shelters-housing/", RedirectView.as_view(pattern_name='shelters-housing',permanent=True), name="shelters-housing-redirect"),
 

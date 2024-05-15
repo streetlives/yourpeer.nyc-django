@@ -256,7 +256,7 @@ https://opensource.org/licenses/MIT.
           {% endif %}
         </p>
       </li>
-        {% if 'phone' in location and not location.closed %}
+        {% if location.phone and not location.closed %}
         <li translate="no" class="flex space-x-3">
           <img
             src="{% static 'dist/img/icons/phone.svg' %}"

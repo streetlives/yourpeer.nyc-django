@@ -42,9 +42,13 @@ def format_website_url_view(url):
         return url_object.netloc.replace('www.', '') + url_object.path
     except ValueError:
         return url.replace('www.', '')
-    
+
+
+def linebreaks_before_bullet(value):
+    return value.replace('•', '<br><br>•') 
 
 register.filter('format_website_url', format_website_url)
+register.filter('linebreaks_before_bullet', linebreaks_before_bullet)
 register.filter('format_website_url_view', format_website_url_view)
 
 

@@ -672,6 +672,7 @@ function mapInitContainer(){
 
 
   function scaleMap(markers) {
+    console.log('scale map')
     if (!map) return;
   
     const list = markers;
@@ -682,42 +683,67 @@ function mapInitContainer(){
       map.panTo({ lat: list[0].lat, lng: list[0].lng });
       return;
     }
+
+    let coordinates = []
   
   
     if (userLocation !== null) {
   
-      const center = userLocation;
-  
-      const zoom = calculateZoom(list.slice(0, 25), center);
-  
-      if (zoom <= map.getZoom()) { 
-        setTimeout(function(){map.setZoom(zoom)}, 80);
-      }
+
+      const sortedByCenter = [...list].sort(function (a, b) {
+        return calculateDistance(a, userLocation) - calculateDistance(b, userLocation);
+      });
+
+      coordinates = sortedByCenter.slice(0, 10);
+      coordinates.push(userLocation)
+
   
     } else {
   
       const sortedByCenter = [...list].sort(function (a, b) {
         return calculateDistance(a, centralPark) - calculateDistance(b, centralPark);
       });
-    
-      const zoom = calculateZoom(sortedByCenter.slice(0, 25), centralPark);
-  
-      if (zoom <= map.getZoom()) {
-        setTimeout(function(){map.setZoom(zoom)}, 80);
-      }
-  
+
+      coordinates = sortedByCenter.slice(0, 10);
+      coordinates.push(userLocation)
     }
+
+    var bounds = new google.maps.LatLngBounds();
+    coordinates.forEach(function(coord) {
+      var latLng = new google.maps.LatLng(coord.lat, coord.lng);
+      bounds.extend(latLng);
+    });
+
+    map.fitBounds(bounds);
   
   }
 
   function centerTheMap() {
 
 
+    let coordinates = markers.map(m => ({lat: m.lat, lng: m.lng}));
+    
     if (userLocation) {
-      map.panTo(userLocation);
+
+      coordinates = [...markers].sort(function (a, b) {
+        return calculateDistance(a, userLocation) - calculateDistance(b, userLocation);
+      }).slice(0, 10);
+
+      coordinates.push(userLocation)
     } else {
-      map.panTo(centralPark);
+      coordinates = [...markers].sort(function (a, b) {
+        return calculateDistance(a, centralPark) - calculateDistance(b, centralPark);
+      }).slice(0, 10);
+      coordinates.push(centralPark)
     }
+
+    var bounds = new google.maps.LatLngBounds();
+    coordinates.forEach(function(coord) {
+      var latLng = new google.maps.LatLng(coord.lat, coord.lng);
+      bounds.extend(latLng);
+    });
+
+    map.fitBounds(bounds);
 
       
   }
@@ -760,25 +786,6 @@ function mapInitContainer(){
   }
 
 
-  function calculateZoom(data, center) {
-    if (data.length === 0) {
-      return 14; // Default zoom level
-    }
-
-    var distanceSum = 0;
-
-    for (var i = 0; i < data.length; i++) {
-      distanceSum += haversineDistance(center, data[i]);
-    }
-
-    var avgDistance = distanceSum / data.length;
-    // Adjust the 1.5 factor as needed to get the desired zoom level
-    var zoom = Math.round(14 - Math.log(avgDistance) / Math.log(2) + 1);
-
-    if (zoom > 20) return 14;
-
-    return zoom;
-  }
 
   function haversineDistance(point1, point2) {
     function toRad(value) {
@@ -807,18 +814,6 @@ function mapInitContainer(){
     return distance;
   }
 
-
-  function formatPhoneNumber(phoneNumber) {
-    const numericOnly = phoneNumber.replace(/\D/g, '');
-
-    // Define the format pattern
-    const formatPattern = '($1) $2-$3$4';
-
-    // Use a regular expression to match and capture groups based on the format pattern
-    const formattedNumber = numericOnly.replace(/^(\d{3})(\d{3})(\d{4})(\d{0,3})/, formatPattern);
-
-    return formattedNumber.trim(); // Remove trailing spaces
-  }
 
 
   let rad_Earth = 6378.16;

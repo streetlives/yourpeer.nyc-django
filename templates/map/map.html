@@ -1064,9 +1064,11 @@ https://opensource.org/licenses/MIT.
                       {{ location.name }}
                     </div>
                     <div>
+                      {% if location.location_name %}
                       <p class="text-xs text-neutral-500 mb-1" translate="no">
                           {{ location.location_name }}
                       </p>
+                      {% endif %}
                       <p class="flex items-center gap-x-1 text-xs text-neutral-500">
                         <span translate="no" class="truncate">
                           {{ location.area }}

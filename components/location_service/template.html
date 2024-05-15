@@ -22,7 +22,7 @@
         >
           <!-- opacity-0  pointer-events-none -->
           {% if service.description or service.info or service.docs or service.schedule %}
-          {% if not service.closed %}
+          {% if not service.closed or service.info or service.description %}
           <button 
             class="flex-shrink-0 collapseButton absolute left-3 top-2" 
             data-target="{{service.name}}"
@@ -52,7 +52,7 @@
             {% if service.description or service.info or service.docs or service.schedule %}
             <div class="collapseContent overflow-hidden" id="{{service.name}}" style="display: none;">
               <!-- :class="{'py-2': (service.info?.length || service.description || service.docs?.length || Object.keys(service.schedule).length || service.membership) && (service.closed ? service.info?.length : true)}" -->
-              <div {% if not service.closed %} class="py-2" {% endif %} >
+              <div {% if not service.closed or service.info or service.description %} class="py-2" {% endif %} >
                 {% if not service.closed %}
                   <div>
                       {% if service.description %}

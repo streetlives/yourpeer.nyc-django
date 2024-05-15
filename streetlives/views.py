@@ -12,7 +12,7 @@ import requests
 import csv
 import math
 from django.http import HttpResponse, JsonResponse, HttpResponsePermanentRedirect, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render as _render
 from django.template import Template, Context
 from django.core.paginator import Paginator
 from v1.models import Locations 
@@ -35,8 +35,33 @@ from streetlives.sql import *
 from django.db.models.query import RawQuerySet
 from django.views.decorators.cache import cache_page
 import requests 
+from urllib.parse import urlparse, parse_qs
+from functools import partial
 
 DEFAULT_PAGE_SIZE=20
+
+# add default canonical_url parameter to all requests
+def render(*args, **kwargs):
+    context = None
+    if 'context' in kwargs:
+        context = kwargs['context']
+    elif len(args) >= 3:
+        context = args[2]
+    else:
+        context = {}
+        kwargs['context'] = context 
+
+    request = None
+    if 'request' in kwargs:
+        request = kwargs['request']
+    elif len(args) >= 1:
+        request = args[0]
+
+    if 'canonical_url' not in context:
+        canonical_url = request.build_absolute_uri(request.path)
+        context['canonical_url'] = canonical_url
+
+    return _render(*args, **kwargs)
 
 
 logger = logging.getLogger(__name__)
@@ -215,6 +240,10 @@ def map(request, slug=None, title=None, description=None, filters= None):
 
                 
     canonical_url = request.build_absolute_uri(request.path)
+    parsed_path = urlparse(request.get_full_path())
+    parsed_qs = parse_qs(parsed_path.query)
+    if 'page' in parsed_qs and len(parsed_qs['page']) == 1:
+        canonical_url = f'{canonical_url}?page={parsed_qs["page"][0]}'
 
     is_htmx = False
     if "HTTP_HX_PUSH_URL" in request.META:
@@ -252,7 +281,7 @@ def map(request, slug=None, title=None, description=None, filters= None):
         if page == None:
             page = 0
         
-    title = "All Locations | YourPeer"
+    title = title or "All Locations | YourPeer"
     description = "See all locations hosted on YourPeer offering essential resources, shelters, food pantries, and more in NYC."
 
     num_pages, count, locations = get_locations(page, page_size, filters)
@@ -365,6 +394,12 @@ def organization(request):
 
 # /health-care
 
+def custom_404(request):
+    return render(
+        request,
+        "404.html",
+        status=404
+    )
 
 
 import traceback
@@ -394,7 +429,8 @@ def locations_slug(request, slug=None):
                 if e.response.status_code != 404:
                     raise e # rethrow for anything other than 404
 
-                return HttpResponseNotFound()
+            return custom_404(request)
+
 
         if this_location is not None:
             logger.info("json is " + str(request.META.get("json", False)))
@@ -413,6 +449,8 @@ def locations_slug(request, slug=None):
                 # response["HX-Push-Url"] = request.build_absolute_uri()
                 return response
 
+            canonical_url = request.build_absolute_uri(request.path)
+
             response =  render(
                 request,
                 "map/map.html",
@@ -425,6 +463,7 @@ def locations_slug(request, slug=None):
                     + this_location["name"]
                     + " | YourPeer",
                     "page_description": this_location["name"] + " | YourPeer",
+                    "canonical_url": canonical_url,
                 },
             )
     # print("HX_PUSH is " + request.META.get("HTTP_HX_PUSH_URL", False))
@@ -457,12 +496,12 @@ def shelters_housing_list(request):
 
 
 def shelters_housing_adult_list(request):
-    title = "Adult Housing For Unhoused People In NYC | YourPeer"
+    title = "Shelters & Housing For Unhoused People In NYC | YourPeer"
     description = "Discover housing and accomodations for unhoused adults in NYC at YourPeer. Our network of resources aim to provide safe housing options for adults experiencing homelessness."
     return map(request, title=title, description=description, filters={"shelter": "single"})
 
 def shelters_housing_families_list(request):
-    title = "Family Shelters & Housing For Unhoused People In NYC | YourPeer"
+    title = "Shelters & Housing For Unhoused People In NYC | YourPeer"
     description = "Find family shelters and housing for unhoused people in NYC. Explore all of our family resources to ensure your family's well-being and find the support you need."
     return map(request, title=title, description=description, filters={"shelter": "families"})
 
@@ -474,12 +513,12 @@ def food_list(request):
     return map(request, title=title, description=description, filters={"food": "yes"})
 
 def food_pantry_list(request):
-    title = "Food Pantries For Unhoused People In NYC | YourPeer "
+    title = "Food For Unhoused People In NYC | YourPeer"
     description = "YourPeer connects unhoused people with local food pantries in NYC, providing sustenance during challenging times. Use YourPeer to find nearby food pantries offering food assistance."
     return map(request, title=title, description=description, filters={"food": "pantry", "food_type": "pantry"})
 
 def food_soup_kitchens_list(request):
-    title = "Soup Kitchens For Unhoused People In NYC | YourPeer"
+    title = "Food For Unhoused People In NYC | YourPeer"
     description = "Find soup kitchens and warm meals with YourPeer. Access nourishing meals and connect with caring communities through our comprehensive network of resources."
     return map(request, title=title, description=description, filters={"food": "kitchen", "food_type": "soup_kitchen"})
 
@@ -489,12 +528,12 @@ def clothing_list(request):
     return map(request, title=title, description=description, filters={"clothing": "yes"})
 
 def clothing_casual_list(request):
-    title = "Free Casual Clothing For Unhoused People In NYC | YourPeer"
+    title = "Free Clothing For Unhoused People In NYC | YourPeer"
     description = "Easily find locations and resources offering free casual clothing for unhoused individuals in NYC at YourPeer."
     return map(request, title=title, description=description, filters={"clothing": "casual", "casual": True})
 
 def clothing_professional_list(request):
-    title = "Free Professional Clothing For Unhoused People In NYC | YourPeer"
+    title = "Free Clothing For Unhoused People In NYC | YourPeer"
     description = "Find locations and resources offering professional clothing for unhoused individuals in NYC at YourPeer."
     return map(request, title=title, description=description, filters={"clothing": "professional", "professional": True})
 
@@ -547,7 +586,7 @@ def personal_care_laundry_services_list(request):
     return map(request, title=title, description=description, filters={"personal-care": personal_care, "laundry_services": True})
 
 def personal_care_haircuts_barbers_list(request):
-    title = "Haircuts & Barber For Unhoused People In NYC | YourPeer"
+    title = "Personal Care Resources For Unhoused People In NYC | YourPeer"
     description = "Find locations offering haircuts and barber services for unhoused individuals in NYC, with YourPeer. Access our resources for additional support. "
     personal_care = query_string_or_filter(request, None, "personal-care")
     if personal_care:

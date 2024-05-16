@@ -458,7 +458,7 @@ def locations_slug(request, slug=None):
                     "slug": slug,
                     "location_id": this_location["id"],
                     "location": this_location,
-                    "page_title": this_location["area"]
+                    "page_title": this_location["area"] or this_location["city"]
                     + " "
                     + this_location["name"]
                     + " | YourPeer",

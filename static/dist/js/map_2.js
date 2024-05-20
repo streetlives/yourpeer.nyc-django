@@ -6,12 +6,12 @@ license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 */
 
-function mapInitContainer(){
-  console.log('map init had init', window._hadMapInit)
-  if(window._hadMapInit) return;
+function mapInitContainer() {
+  console.log("map init had init", window._hadMapInit);
+  if (window._hadMapInit) return;
 
-  window.addEventListener('popstate', function(event) {
-    console.log('popstate fired!', event);
+  window.addEventListener("popstate", function (event) {
+    console.log("popstate fired!", event);
     this.location.reload();
   });
 
@@ -116,15 +116,14 @@ function mapInitContainer(){
     lng: -73.965602,
   };
 
-
-  const centerMapBtn = document.getElementById('recenter-btn');
+  const centerMapBtn = document.getElementById("recenter-btn");
   let userLocation = null;
 
-  centerMapBtn.addEventListener('click', centerTheMap)
+  centerMapBtn.addEventListener("click", centerTheMap);
 
-  document.addEventListener('DOMContentLoaded', function() {
-      if(window._hadMapInit) return;
-      google.maps
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window._hadMapInit) return;
+    google.maps
       .importLibrary("maps")
       .then(() => {
         console.log("maps loaded");
@@ -134,63 +133,57 @@ function mapInitContainer(){
         console.log("marker loaded");
         Marker = google.maps.Marker;
         Mapp = google.maps.Map;
-
       })
       .then(() => {
         initMap();
-        if (typeof active_location == 'object') {
-          initMiniMap({lat: active_location.lat, lng: active_location.lng})
-          setUserPosition(false)
-          switchActiveMarker(active_location.id)
-          map?.panTo({lat: active_location.lat, lng: active_location.lng});
+        if (typeof active_location == "object") {
+          initMiniMap({ lat: active_location.lat, lng: active_location.lng });
+          setUserPosition(false);
+          switchActiveMarker(active_location.id);
+          map?.panTo({ lat: active_location.lat, lng: active_location.lng });
         } else {
-          setUserPosition(true)
+          setUserPosition(true);
         }
       })
       .then(() => {
-        fetchLocations()
+        fetchLocations();
         window._hadMapInit = true;
-        
-
       })
       // .then(sortLocationsByGeo)
       .catch((e) => {
         console.log(e);
       });
-
-  })
-
+  });
 
   async function getLocations() {
     try {
       let url = window.location.href;
-      if(url.includes("?")) {
+      if (url.includes("?")) {
         url += "&json=true";
       } else {
         url += "?json=true";
       }
       const res = await axios.get(url);
-      console.log(res)
+      console.log(res);
       return res.data.locations;
-    } catch(err) {
-      console.log(err)
+    } catch (err) {
+      console.log(err);
       return [];
     }
   }
 
-
   async function fetchLocations() {
-    console.log('fetching locations')
-
-
-
+    console.log("fetching locations");
 
     let map_locations = await getLocations();
 
     for (let i = 0; i < map_locations.length; i++) {
       for (let j = i + 1; j < map_locations.length; j++) {
-        if (map_locations[i].lat === map_locations[j].lat && map_locations[i].lng === map_locations[j].lng) {
-          const c = jitter(map_locations[j].lat, map_locations[j].lng, 0.003)
+        if (
+          map_locations[i].lat === map_locations[j].lat &&
+          map_locations[i].lng === map_locations[j].lng
+        ) {
+          const c = jitter(map_locations[j].lat, map_locations[j].lng, 0.003);
           map_locations[j].lat = c.lat;
           map_locations[j].lng = c.lng;
         }
@@ -198,12 +191,11 @@ function mapInitContainer(){
     }
 
     // console.log(map_locations);
-  
+
     updatePins(map_locations);
   }
 
   window.fetchLocations = fetchLocations;
-
 
   function convertObjectToArray(inputObject) {
     const outputArray = [];
@@ -314,11 +306,8 @@ function mapInitContainer(){
     return `Open ${groupStrings.join(", ")}`;
   }
 
-
-
   async function createReportIssue(location_name, content, services) {
     console.log("reporing issue");
-    
 
     const currentUrl = window.location.href;
 
@@ -342,8 +331,10 @@ function mapInitContainer(){
   }
 
   function toL(text) {
-    if(!text) return null;
-    const normalizedString = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (!text) return null;
+    const normalizedString = text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
     // Convert the normalized string to lowercase
     return normalizedString.toLowerCase();
   }
@@ -359,60 +350,59 @@ function mapInitContainer(){
     const locationArea = `${location.name} ${location.area}`;
 
     if (location.accommodation_services.services.length) {
-      services.push('Shelter & Housing');
+      services.push("Shelter & Housing");
     }
     if (location.clothing_services.services.length) {
-      services.push('Clothing');
+      services.push("Clothing");
     }
     if (location.food_services.services.length) {
-      services.push('Food');
+      services.push("Food");
     }
     if (location.health_services.services.length) {
-      services.push('Health');
+      services.push("Health");
     }
     if (location.other_services.services.length) {
-      services.push('Other Services');
+      services.push("Other Services");
     }
     if (location.personal_care_services.services.length) {
-      services.push('Personal care');
+      services.push("Personal care");
     }
 
-    
-
-    if(window._paq) {
-      window._paq.push(['trackEvent', 'Locations', 'Areas', locationArea]);
+    if (window._paq) {
+      window._paq.push(["trackEvent", "Locations", "Areas", locationArea]);
     }
-    gtag('event', 'Areas', {
-      'event_category' : 'Areas',
-      'event_label': locationArea
+    gtag("event", "Areas", {
+      event_category: "Areas",
+      event_label: locationArea,
     });
 
-    services.forEach(function(service) {
-      console.log('event')
+    services.forEach(function (service) {
+      console.log("event");
 
-      gtag('event','Area Services', {
-        'event_category':'Area Services',
-        'event_label':`${locationArea} - ${service}`
+      gtag("event", "Area Services", {
+        event_category: "Area Services",
+        event_label: `${locationArea} - ${service}`,
       });
 
-      gtag('event', 'Services', {
-        'event_category':'Services',
-        'event_label':service
+      gtag("event", "Services", {
+        event_category: "Services",
+        event_label: service,
       });
 
-      if(window._paq) {
-        window._paq.push(['trackEvent', 'Locations', 'Area Services', `${locationArea} - ${service}`]);
-        window._paq.push(['trackEvent', 'Locations', 'Services', service]);
+      if (window._paq) {
+        window._paq.push([
+          "trackEvent",
+          "Locations",
+          "Area Services",
+          `${locationArea} - ${service}`,
+        ]);
+        window._paq.push(["trackEvent", "Locations", "Services", service]);
       }
     });
-
   }
-
-
 
   let apikey = "AIzaSyAAPtKyMixw4dK4LIFDo9PwfsXgS0Xw8cw";
   let map, infoWindow, miniMap, panorama;
-
 
   function sortLocationsByServiceCount() {
     function compareServiceLength(obj1, obj2) {
@@ -447,7 +437,6 @@ function mapInitContainer(){
       map.setZoom(15);
       initMiniMap({ lat: currentLocation.lat, lng: currentLocation.lng });
     }
-
   }
 
   function getDirectionUrl(address) {
@@ -461,7 +450,7 @@ function mapInitContainer(){
   }
 
   async function initMap() {
-    console.log('doing initmap fn')
+    console.log("doing initmap fn");
     infoWindow = new google.maps.InfoWindow();
     map = new Mapp(document.getElementById("map"), {
       center: centralPark,
@@ -475,7 +464,7 @@ function mapInitContainer(){
   }
 
   async function initMiniMap(center) {
-    console.log('doing initminimap fn')
+    console.log("doing initminimap fn");
 
     if (Mapp) {
       window.minimap = new google.maps.Map(document.getElementById("miniMap"), {
@@ -500,7 +489,7 @@ function mapInitContainer(){
   window.initMiniMap = initMiniMap;
 
   async function initMiniMap2(center) {
-    console.log('doing initminimap2 fn')
+    console.log("doing initminimap2 fn");
 
     const minimap2 = new Mapp(document.getElementById("miniMap2"), {
       center: center,
@@ -519,7 +508,6 @@ function mapInitContainer(){
     });
   }
 
-
   function removeMarkers() {
     for (var i = 0; i < markers.length; i++) {
       markers[i].setMap(null); // Remove marker from the map
@@ -528,7 +516,6 @@ function mapInitContainer(){
   }
 
   function updatePins(locations) {
-
     if (!locations?.length) {
       removeMarkers();
       return;
@@ -564,8 +551,6 @@ function mapInitContainer(){
       //   map.panTo({ lat: locations[i].lat, lng: locations[i].lng });
       // }
       marker.addListener("click", (e) => {
-
-
         if (marker.icon == activeMarkerIcon) return;
 
         const target = `/locations/${marker.slug}`;
@@ -575,26 +560,19 @@ function mapInitContainer(){
         if (pageWidth > 767) {
           window.location.href = target;
         } else {
+          let hx_target = "#mobile_tray";
+          let htmx_options = {
+            target: hx_target,
+            select: hx_target,
+            swap: "outerHTML",
+          };
+          console.log(marker.slug);
 
-
-        let hx_target = "#mobile_tray"
-        let htmx_options = {target: hx_target, select:hx_target, swap: 'outerHTML'}
-        console.log(marker.slug);
-
-        htmx.ajax('GET', target, htmx_options).then(()=>
-        {
-           
-          switchActiveMarker(marker.id)
-          console.log('hello')
-        })
-
-  
+          htmx.ajax("GET", target, htmx_options).then(() => {
+            switchActiveMarker(marker.id);
+            console.log("hello");
+          });
         }
-
-
-        
-
-
       });
     }
 
@@ -625,9 +603,7 @@ function mapInitContainer(){
   window.switchActiveMarker = switchActiveMarker;
   window.removeActiveMarker = removeActiveMarker;
 
-
   async function setUserPosition(center = true) {
-
     const mapScale = scale;
 
     window.navigator.geolocation.getCurrentPosition(
@@ -652,105 +628,103 @@ function mapInitContainer(){
         );
 
         if (distance > 26) {
-
-          if (center) map?.panTo(centralPark)
+          if (center) map?.panTo(centralPark);
 
           userLocation = null;
-
         } else {
           if (center) map?.panTo(usl);
         }
       },
       () => {
-          if (center) map?.panTo({
+        if (center)
+          map?.panTo({
             lat: 40.782539,
             lng: -73.965602,
           });
-          userLocation = null;
+        userLocation = null;
         console.log("geoloc err");
       }
     );
   }
 
-
-
   function scaleMap(markers) {
-    console.log('scale map')
+    console.log("scale map");
     if (!map) return;
-  
+
     const list = markers;
 
-
-    if (list.length === 1 && typeof active_location == 'object'){
-      switchActiveMarker(list[0].id)
+    if (list.length === 1 && typeof active_location == "object") {
+      switchActiveMarker(list[0].id);
       map.panTo({ lat: list[0].lat, lng: list[0].lng });
       return;
     }
 
-    let coordinates = []
-  
-  
+    let coordinates = [];
+
     if (userLocation !== null) {
-  
-
       const sortedByCenter = [...list].sort(function (a, b) {
-        return calculateDistance(a, userLocation) - calculateDistance(b, userLocation);
+        return (
+          calculateDistance(a, userLocation) -
+          calculateDistance(b, userLocation)
+        );
       });
 
       coordinates = sortedByCenter.slice(0, 10);
-      coordinates.push(userLocation)
-
-  
+      coordinates.push(userLocation);
     } else {
-  
       const sortedByCenter = [...list].sort(function (a, b) {
-        return calculateDistance(a, centralPark) - calculateDistance(b, centralPark);
+        return (
+          calculateDistance(a, centralPark) - calculateDistance(b, centralPark)
+        );
       });
 
       coordinates = sortedByCenter.slice(0, 10);
-      coordinates.push(userLocation)
+      coordinates.push(userLocation);
     }
 
     var bounds = new google.maps.LatLngBounds();
-    coordinates.forEach(function(coord) {
+    coordinates.forEach(function (coord) {
       var latLng = new google.maps.LatLng(coord.lat, coord.lng);
       bounds.extend(latLng);
     });
 
     map.fitBounds(bounds);
-  
   }
 
   function centerTheMap() {
+    let coordinates = markers.map((m) => ({ lat: m.lat, lng: m.lng }));
 
-
-    let coordinates = markers.map(m => ({lat: m.lat, lng: m.lng}));
-    
     if (userLocation) {
+      coordinates = [...markers]
+        .sort(function (a, b) {
+          return (
+            calculateDistance(a, userLocation) -
+            calculateDistance(b, userLocation)
+          );
+        })
+        .slice(0, 10);
 
-      coordinates = [...markers].sort(function (a, b) {
-        return calculateDistance(a, userLocation) - calculateDistance(b, userLocation);
-      }).slice(0, 10);
-
-      coordinates.push(userLocation)
+      coordinates.push(userLocation);
     } else {
-      coordinates = [...markers].sort(function (a, b) {
-        return calculateDistance(a, centralPark) - calculateDistance(b, centralPark);
-      }).slice(0, 10);
-      coordinates.push(centralPark)
+      coordinates = [...markers]
+        .sort(function (a, b) {
+          return (
+            calculateDistance(a, centralPark) -
+            calculateDistance(b, centralPark)
+          );
+        })
+        .slice(0, 10);
+      coordinates.push(centralPark);
     }
 
     var bounds = new google.maps.LatLngBounds();
-    coordinates.forEach(function(coord) {
+    coordinates.forEach(function (coord) {
       var latLng = new google.maps.LatLng(coord.lat, coord.lng);
       bounds.extend(latLng);
     });
 
     map.fitBounds(bounds);
-
-      
   }
-
 
   // Function to calculate distance between two points using Haversine formula
   function calculateDistanceInMiles(lat1, lng1, lat2, lng2) {
@@ -788,8 +762,6 @@ function mapInitContainer(){
     return dist;
   }
 
-
-
   function haversineDistance(point1, point2) {
     function toRad(value) {
       return (value * Math.PI) / 180;
@@ -817,8 +789,6 @@ function mapInitContainer(){
     return distance;
   }
 
-
-
   let rad_Earth = 6378.16;
   let one_degree = (2 * Math.PI * rad_Earth) / 360;
   let one_km = 1 / one_degree;
@@ -830,23 +800,13 @@ function mapInitContainer(){
 
   function jitter(lat, lng, kms, fixed) {
     return {
-      lat : randomInRange(
-        lat - (kms * one_km),
-        lat + (kms * one_km),
-        fixed
-      ),
-      lng : randomInRange(
-        lng - (kms * one_km),
-        lng + (kms * one_km),
-        fixed
-      )
+      lat: randomInRange(lat - kms * one_km, lat + kms * one_km, fixed),
+      lng: randomInRange(lng - kms * one_km, lng + kms * one_km, fixed),
     };
   }
 
-  function filterListing(thisElementId){
+  function filterListing(thisElementId) {
     let el = document.getElementById(thisElementId);
-
   }
-
 }
 mapInitContainer();

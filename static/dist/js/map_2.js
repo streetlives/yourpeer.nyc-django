@@ -565,6 +565,9 @@ function mapInitContainer(){
       // }
       marker.addListener("click", (e) => {
 
+
+        if (marker.icon == activeMarkerIcon) return;
+
         const target = `/locations/${marker.slug}`;
 
         const pageWidth = document.documentElement.scrollWidth;

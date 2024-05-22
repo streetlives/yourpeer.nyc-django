@@ -230,7 +230,7 @@ https://opensource.org/licenses/MIT.
         <div>
           <p class="text-dark mb-0.5 font-medium text-sm">Closed</p>
             {% if 'info' in location %}
-              <p class="text-dark font-normal text-sm" > {{ location.info.0 }} </p>
+              <p class="text-dark font-normal text-sm" > {{ location.info.0|safe }} </p>
             {% endif %}
         </div>
       </div>

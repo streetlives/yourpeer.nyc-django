@@ -45,7 +45,7 @@ def format_website_url_view(url):
 
 
 def linebreaks_before_bullet(value):
-    return value.replace('•', '<br><br>•') 
+    return value.replace('•', '<br>•') 
 
 register.filter('format_website_url', format_website_url)
 register.filter('linebreaks_before_bullet', linebreaks_before_bullet)

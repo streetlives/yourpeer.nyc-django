@@ -111,7 +111,7 @@ def filter_services_by_name(d, is_location_detail, category_name=None):
                 "docs" : [doc['document'] for doc in service['RequiredDocuments'] if doc['document'] != 'None'] if is_location_detail else None,
                 "referral_letter" : any(["referral letter" in doc['document'].lower() for doc in service['RequiredDocuments']]) if is_location_detail else None,
                 "eligibility": [elig['description'] for elig in service['Eligibilities'] if elig['description']] if is_location_detail else None,
-                "membership": any(["membership" in elig['EligibilityParameter']['name'].lower() and elig['eligible_values'] and not "false" in [elig_value.lower() for elig_value in elig['eligible_values']] for elig in service['Eligibilities']]) if is_location_detail else None,
+                "membership": any(["membership" in elig['EligibilityParameter']['name'].lower() and elig['eligible_values'] and not "false" in [str(elig_value).lower() for elig_value in elig['eligible_values']] for elig in service['Eligibilities']]) if is_location_detail else None,
             } for service in d['Services'] if ( category_name in (service['Taxonomies'][0]['parent_name'], service['Taxonomies'][0]['name']) if category_name else True)
         ]
     }

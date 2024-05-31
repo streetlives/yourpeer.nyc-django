@@ -622,6 +622,40 @@ function mapInitContainer(){
   window.switchActiveMarker = switchActiveMarker;
   window.removeActiveMarker = removeActiveMarker;
 
+  function getFirstAddressComponent(results, addressComponentType){
+    return results.map(r => r.address_components.filter(ac => ac.types.includes(addressComponentType)).map(ac => ac.long_name)).reduce((a, b) => a.concat(b), []).pop()
+  }
+  
+  function logGeoEvent(coords){
+    fetch(`/geocode/analytics/all?latitude=${coords.latitude}&longitude=${coords.longitude}`).
+      then(response => response.json()).
+      then(geoAnalytics => {
+        // convert lat/lng to custom event
+        const geocoder = new google.maps.Geocoder();
+        const location = new google.maps.LatLng(coords.latitude, coords.longitude);
+        // lookup neighborhood and borough from lat/lng
+        // we need to get neighborhood and borough
+        geocoder.geocode({location}, (results, status) => {
+          if (status == 'OK') {
+            // get the neighborhood
+            const googleNeighborhood = getFirstAddressComponent(results, 'neighborhood');
+            const googleBorough = getFirstAddressComponent(results, 'sublocality');
+            const zipCode = getFirstAddressComponent(results, 'postal_code');
+            gtag('event', 'geolocation', {
+              googleNeighborhood,
+              googleBorough,
+              neighborhood: geoAnalytics.neighborhood,
+              borough: geoAnalytics.borough,
+              zipCode,
+              schoolDistrict: geoAnalytics.districts.school,
+              congressionalDistrict: geoAnalytics.districts.congressional,
+              communityDistrict: geoAnalytics.districts.community,
+              pathname: window.location.pathname
+            });
+          }
+        })
+      })
+  }
 
   async function setUserPosition(center = true) {
 
@@ -629,6 +663,7 @@ function mapInitContainer(){
 
     window.navigator.geolocation.getCurrentPosition(
       (pos) => {
+        logGeoEvent(pos.coords);
         const usl = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,

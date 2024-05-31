@@ -93,6 +93,10 @@ urlpatterns = [
     path("report", views.email_issue_report, name="report"),
 
     path("map/", redirect_map, name="redirect_map"),
+
+    path("map/", redirect_map, name="redirect_map"),
+
+    path("geocode/analytics/all", views.proxy_get, name="redirect_map"),
 ] 
 
 if settings.IS_BACKEND:

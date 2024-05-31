@@ -102,6 +102,11 @@ def sign_up(request):
     response = redirect('https://forms.gle/iDeQigu5GpNf9A286')
     return response
 
+def proxy_get(request):
+    url = f"{GO_GETTA_PROD_URL}{request.get_full_path()}"
+    response = requests.get(url)
+    response.raise_for_status()
+    return JsonResponse(response.json(), status=200)
 
 
 def concat_service_list(list):

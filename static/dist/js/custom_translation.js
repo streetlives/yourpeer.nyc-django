@@ -5,11 +5,14 @@ Use of this source code is governed by an MIT-style
 license that can be found in the LICENSE file or at
 https://opensource.org/licenses/MIT.
 */
+console.log('hello')
 
 function initCustomTranslations() {
+    console.log('now')
     if (window._hadCustomTranslationsInit) {
         return;
     }
+    console.log('then')
     window.customTranslations = {
         es: {
             "Free support services validated by your peers": "Servicios de apoyo gratuito para personas en necesidad",

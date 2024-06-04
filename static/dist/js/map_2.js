@@ -450,17 +450,33 @@ function mapInitContainer() {
   }
 
   async function initMap() {
-    console.log("doing initmap fn");
+
+    let savedState = JSON.parse(localStorage.getItem('mapState'));
+    let defaultZoom = 14;
+
     infoWindow = new google.maps.InfoWindow();
     map = new Mapp(document.getElementById("map"), {
-      center: centralPark,
-      zoom: 14,
+      center: savedState ? savedState.center : centralPark,
+      zoom: savedState ? savedState.zoom : defaultZoom,
       streetViewControl: false,
       // gestureHandling: 'cooperative',
       mapTypeControl: false,
       fullscreenControl: false,
       styles: mapStyles,
     });
+
+    // Add listeners to save map state
+    map.addListener('center_changed', saveMapState);
+    map.addListener('zoom_changed', saveMapState);
+  }
+
+  function saveMapState() {
+    console.log('save map state')
+    const mapState = {
+      center: map.getCenter().toJSON(),
+      zoom: map.getZoom(),
+    };
+    localStorage.setItem('mapState', JSON.stringify(mapState));
   }
 
   async function initMiniMap(center) {
@@ -639,7 +655,8 @@ function mapInitContainer() {
   }
 
   async function setUserPosition(center = true) {
-    const mapScale = scale;
+
+    let savedState = JSON.parse(localStorage.getItem('mapState'));
 
     window.navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -664,19 +681,18 @@ function mapInitContainer() {
         );
 
         if (distance > 26) {
-          if (center) map?.panTo(centralPark);
+          if (center) {
+            map?.panTo( savedState ? saveMapState.center : centralPark);
+          }
 
           userLocation = null;
         } else {
-          if (center) map?.panTo(usl);
+          if (center) map?.panTo(savedState ? saveMapState.center : usl);
         }
       },
       () => {
         if (center)
-          map?.panTo({
-            lat: 40.782539,
-            lng: -73.965602,
-          });
+          map?.panTo(savedState ? saveMapState.center : centralPark);
         userLocation = null;
         console.log("geoloc err");
       }
@@ -729,6 +745,11 @@ function mapInitContainer() {
 
   function centerTheMap() {
     let coordinates = markers.map((m) => ({ lat: m.lat, lng: m.lng }));
+
+    if (!coordinates.length) {
+      map.panTo(userLocation)
+      return;
+    }
 
     if (userLocation) {
       coordinates = [...markers]

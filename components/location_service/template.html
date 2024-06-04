@@ -122,7 +122,7 @@
                             {% endfor %}
                             {% for req in service.docs %}
                               <p class="text-dark text-sm">
-                                {% if req == None %}
+                                {% if req == 'None' %}
                                   No proofs required
                                 {% else %}
                                 Requires {{ req }}

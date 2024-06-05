@@ -110,6 +110,9 @@ function mapInitContainer() {
   ];
 
   let scale = 25;
+  let isLoadingMap = true;
+  const loader = document.getElementById('loader');
+  console.log(loader)
 
   const centralPark = {
     lat: 40.782539,
@@ -174,6 +177,7 @@ function mapInitContainer() {
 
   async function fetchLocations() {
     console.log("fetching locations");
+    loader.style.display = 'block';
 
     let map_locations = await getLocations();
 
@@ -193,118 +197,12 @@ function mapInitContainer() {
     // console.log(map_locations);
 
     updatePins(map_locations);
+    loader.style.display = 'none';
   }
 
   window.fetchLocations = fetchLocations;
 
-  function convertObjectToArray(inputObject) {
-    const outputArray = [];
 
-    for (const key in inputObject) {
-      const openingHours = inputObject[key];
-      const weekday = parseInt(key);
-
-      const convertTime = (time) => {
-        const [hour, minute] = time
-          .replace(" AM", "")
-          .replace(" PM", "")
-          .split(":");
-        let formattedHour = parseInt(hour);
-
-        if (time.includes("PM") && formattedHour !== 12) {
-          formattedHour += 12;
-        }
-
-        return `${formattedHour.toString().padStart(2, "0")}:${minute}:00`;
-      };
-
-      openingHours.forEach((hours) => {
-        const convertedOpeningTime = convertTime(hours.opens_at);
-        const convertedClosingTime = convertTime(hours.closes_at);
-        outputArray.push({
-          opens_at: convertedOpeningTime,
-          closes_at: convertedClosingTime,
-          weekday,
-        });
-      });
-    }
-
-    return outputArray.reverse();
-  }
-
-  function renderSchedule(schedule) {
-    const weekdays = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
-
-    if (
-      schedule.length === 7 &&
-      schedule.every(
-        (day) => day.opens_at === "00:00:00" && day.closes_at === "23:59:00"
-      )
-    ) {
-      return "Open 24/7";
-    }
-
-    const dayNumberToName = (weekday) => weekdays[weekday - 1];
-
-    const formatHour = (time) => {
-      const regexMidnight = /(23:59:00)|(00:00:00)/;
-      if (regexMidnight.test(time)) {
-        return "midnight";
-      }
-      return moment(time, "HH:mm:ss").format("LT").replace(":00 ", " ");
-    };
-
-    const formatHours = (opens, closes) =>
-      `${formatHour(opens)} to ${formatHour(closes)}`;
-
-    const formatRange = ({ start, end }) => {
-      if (end === start) {
-        return dayNumberToName(start);
-      }
-      if (end === start + 1) {
-        return `${dayNumberToName(start)} & ${dayNumberToName(end)}`;
-      }
-      return `${dayNumberToName(start)} to ${dayNumberToName(end)}`;
-    };
-
-    const orderedSchedule = _.orderBy(schedule, ["weekday", "opens_at"]);
-
-    const daysGroupedByHours = orderedSchedule.reduce((grouped, day) => {
-      const hoursString = formatHours(day.opens_at, day.closes_at);
-      return {
-        ...grouped,
-        [hoursString]: [...(grouped[hoursString] || []), day.weekday],
-      };
-    }, {});
-
-    const groupStrings = Object.keys(daysGroupedByHours).map((hoursString) => {
-      const dayRanges = [];
-      const remainingWeekdays = daysGroupedByHours[hoursString];
-
-      while (remainingWeekdays.length) {
-        const currentDayRange = dayRanges[dayRanges.length - 1];
-        const day = remainingWeekdays.shift();
-
-        if (currentDayRange && currentDayRange.end === day - 1) {
-          currentDayRange.end = day;
-        } else {
-          dayRanges.push({ start: day, end: day });
-        }
-      }
-
-      return `${dayRanges.map(formatRange).join(", ")} ${hoursString}`;
-    });
-
-    return `Open ${groupStrings.join(", ")}`;
-  }
 
   async function createReportIssue(location_name, content, services) {
     console.log("reporing issue");

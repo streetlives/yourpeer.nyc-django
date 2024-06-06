@@ -31,7 +31,12 @@ conn.commit()
 
 with open('20240508 YourPeer Age and Population Served sheet - services.csv') as f:
     rows = [
-        row for row in 
+        {
+            'should_process': bool(row['eligible_values']['ageMax'] or \
+                row['eligible_values']['ageMin'] or \
+                row['eligible_values']['allAges']),
+            **row
+        } for row in 
         [ 
             {
                 'eligible_values' : {
@@ -46,12 +51,10 @@ with open('20240508 YourPeer Age and Population Served sheet - services.csv') as
                 'organization_id': row['id'],
                 'organization_name': row['Org name'],
                 'location_name': row['location_name'],
+                'row_num': row_num + 1,
             }
-            for row in csv.DictReader(f)
+            for row_num, row in enumerate(csv.DictReader(f))
         ]
-        if row['eligible_values']['ageMax'] or \
-                row['eligible_values']['ageMin'] or \
-                row['eligible_values']['allAges']
     ]
 
 print('number of rows', len(rows))
@@ -71,10 +74,19 @@ def validate_organization_id(organization_id):
 
 with open('out.csv', 'w') as f:
 
-    writer = csv.DictWriter(f, fieldnames=['status'] + list(rows[0].keys()))
+    writer = csv.DictWriter(f, 
+        fieldnames=['status', 'derived_location_id', 'derived_service_id'] + 
+            list(rows[0].keys()))
     writer.writeheader()
 
     for i, row in enumerate(rows): 
+        if not row['should_process']:
+            writer.writerow({
+                'status': f'SKIP: no age min, age max, or all ages data',
+                **row
+            })
+            continue
+
         # do a quick sanity check
         location_id = row['location_id']
         eligible_values = row['eligible_values']
@@ -122,6 +134,8 @@ with open('out.csv', 'w') as f:
                         print(traceback.format_exc())
                         writer.writerow({
                             'status': f'ERROR: Unable to find a location_id for given row: {";".join(errors)}',
+                            'derived_location_id': None, 
+                            'derived_service_id': None,
                             **row
                         })
                         continue
@@ -137,6 +151,8 @@ with open('out.csv', 'w') as f:
         if not service_id:
             writer.writerow({
                 'status': f'ERROR: Unable to find service id for location and service name: {service_name} {location_id}',
+            'derived_location_id': location_id, 
+            'derived_service_id': None,
                 **row
             })
             continue
@@ -195,6 +211,8 @@ with open('out.csv', 'w') as f:
 
         writer.writerow({
             'status': 'SUCCESS',
+            'derived_location_id': location_id, 
+            'derived_service_id': service_id,
             **row
         })
 

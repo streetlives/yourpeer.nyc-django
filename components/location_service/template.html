@@ -1,0 +1,163 @@
+{% load static %}
+{% load jsonify %}
+<div class="bg-white rounded-lg {% if name in request.GET %} order-first {% endif %} ">
+    <div
+      class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
+    >
+      <img
+        src="{% static icon %}"
+        class="flex-shrink-0 max-h-6 w-6 h-6"
+        alt=""
+      />
+      <h3 class="text-dark text-lg font-medium leading-3">
+        {{ name }}
+      </h3>
+    </div>
+
+    <div class="flex flex-col divide-y divide-gray-200">
+      <!-- items -->
+      {% for service in service_info.services %}
+        <div 
+          class="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative" 
+        >
+          <!-- opacity-0  pointer-events-none -->
+          {% if service.description or service.info or service.docs or service.schedule %}
+          {% if not service.closed or service.info or service.description %}
+          <button 
+            class="flex-shrink-0 collapseButton absolute left-3 top-2" 
+            data-target="{{service.name}}"
+          > 
+            <img
+              src="{% static 'dist/img/icons/arrow-down.svg' %}"
+              class="arrow w-7 h-7 object-contain max-h-7 transition -rotate-90"
+              alt=""
+            />
+            <span class="absolute bg-transparent inset-y-0 left-0 -right-[500px]"></span>
+          </button>
+          {% endif %}
+          {% endif %}
+          <div class="flex-1 pl-7">
+            <h2  
+              class="text-dark text-base font-medium mt-0.5 cursor-pointer collapseButton relative" 
+              id="collapsible"
+              data-target="{{service.name}}"
+            >
+              <span> {{service.name}} </span>
+              {% if service.closed %}
+                <span class="text-danger">(Suspended)</span>
+              {% endif %}
+            </h2>
+
+            <!-- dropdown content -->
+            {% if service.description or service.info or service.docs or service.schedule %}
+            <div class="collapseContent overflow-hidden" id="{{service.name}}" style="display: none;">
+              <!-- :class="{'py-2': (service.info?.length || service.description || service.docs?.length || Object.keys(service.schedule).length || service.membership) && (service.closed ? service.info?.length : true)}" -->
+              <div {% if not service.closed or service.info or service.description %} class="py-2" {% endif %} >
+                {% if not service.closed %}
+                  <div>
+                      {% if service.description %}
+                        <!-- x-html="service.description?.replace(/•/g, '<br>•');" -->
+                        <p class="text-sm text-dark mb-4 have-links">
+                          {{ service.description|linebreaks_before_bullet|safe }}
+                        </p>
+                      {% endif %}
+                    
+                    <ul class="flex flex-col space-y-3">
+                      {% if service.schedule %}
+                      <li class="flex items-start space-x-2">
+                        <span class="text-success">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            class="w-5 h-5"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                        <p class="text-dark text-sm">
+                          {{ service.schedule|render_schedule }}
+                        </p>
+                      </li>
+                      {% endif %}
+                      {% for info in service.info %}
+                        <li class="flex items-start space-x-2">
+                          <span class="text-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                              <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                          <!-- TODO - format the text for a tag -->
+                          <p class="text-dark text-sm have-links service-info" >
+                            {{ info|linebreaks_before_bullet|safe }}
+                            
+                          </p>
+                        </li>
+                      {% endfor %}
+                        <li  class="flex items-start space-x-2 {% if not service.membership and not service.eligibility and not service.docs  %} hidden {% endif %}">
+                          <span class="text-danger">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              class="w-5 h-5"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <div>
+                            {% if service.membership %}
+                              <p class="text-dark text-sm"> Only serves people who are clients of the organization </p>
+                            {% endif %}
+                            {% for item in service.eligibility %}
+                              <p class="text-dark text-sm"><span > {{ item }} </span></p>
+                            {% endfor %}
+                            {% for req in service.docs %}
+                              <p class="text-dark text-sm">
+                                {% if req == 'None' %}
+                                  No proofs required
+                                {% else %}
+                                Requires {{ req }}
+                                {% endif %}
+                              </p>
+                            {% endfor %}
+                          </div>
+                        </li>
+                    </ul>
+                  </div>
+                {% endif %}
+                <div>
+                  {% if service.closed and service.info|length > 0 %}
+                    {% for info in service.info %}
+                      <li class="flex items-start space-x-2">
+                        <span class="text-info">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                          </svg>
+                        </span>
+                        <!-- TODO - need to format text for a tag -->
+                        <p class="text-dark text-sm have-links" >
+                          {{ info|safe }}
+                        </p>
+                      </li>
+                      
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>

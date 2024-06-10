@@ -42,10 +42,15 @@ def format_website_url_view(url):
         return url_object.netloc.replace('www.', '') + url_object.path
     except ValueError:
         return url.replace('www.', '')
-    
+
+
+def linebreaks_before_bullet(value):
+    return value.replace('•', '<br>•') 
 
 register.filter('format_website_url', format_website_url)
+register.filter('linebreaks_before_bullet', linebreaks_before_bullet)
 register.filter('format_website_url_view', format_website_url_view)
+
 
 
 def render_schedule(s):
@@ -70,20 +75,18 @@ def render_schedule(s):
         return "Open 24/7"
 
     def day_number_to_name(weekday):
-        print(weekdays, weekday)
         return weekdays[weekday - 1]
 
     def format_hour(time):
-        if re.search("/(23:59:00)|(00:00:00)/", time):
+        if re.search(r"(23:59:00|00:00:00)", time):
             return "midnight"
-        return datetime.strptime(time, "%H:%M:%S").strftime("%I:%M %p").replace(":00 ", " ")
+        return datetime.strptime(time, "%H:%M:%S").strftime("%-I %p").replace(":00 ", " ")
 
     def format_hours(opens, closes):
         return f"{format_hour(opens)} to {format_hour(closes)}"
 
     def format_range(day_range):
         start, end = day_range["start"], day_range["end"]
-        print('start, end', start, end)
         if end == start:
             return day_number_to_name(start)
         if end == start + 1:
@@ -114,13 +117,11 @@ def render_schedule(s):
             else:
                 day_ranges.append({"start": day, "end": day})
 
-        print('day_ranges ', day_ranges )
         group_strings.append(
             f"{', '.join(format_range(day_range) for day_range in day_ranges)} {hours_string}"
         )
 
     return f"Open {', '.join(group_strings)}"
-
 
 
 def convert_object_to_array(input_object):

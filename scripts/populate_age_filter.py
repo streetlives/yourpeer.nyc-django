@@ -33,18 +33,18 @@ conn.commit()
 with open('20240508 YourPeer Age and Population Served sheet - 20240508.csv') as f:
     rows = [
         {
-            'should_process': bool(row['eligible_values']['ageMax'] or \
-                row['eligible_values']['ageMin'] or \
-                row['eligible_values']['allAges']),
+            'should_process': bool(row['eligible_values']['age_max'] or \
+                row['eligible_values']['age_min'] or \
+                row['eligible_values']['all_ages']),
             **row
         } for row in 
         [ 
             {
                 'eligible_values' : {
-                    'populationServed': None if row['Population served'] == '' else row['Population served'],
-                    'ageMax' : None if row['Age max (inclusive)'] in ('', '?') else int(row['Age max (inclusive)']) + 1,
-                    'ageMin': None if row['Age min'] == '' else int(row['Age min']),
-                    'allAges': bool(row['All ages']),
+                    'population_served': None if row['Population served'] == '' else row['Population served'],
+                    'age_max' : None if row['Age max (inclusive)'] in ('', '?') else int(row['Age max (inclusive)']) + 1,
+                    'age_min': None if row['Age min'] == '' else int(row['Age min']),
+                    'all_ages': bool(row['All ages']),
                 },
                 'gogetta_url': row['gogetta_link service'],
                 'row_num': row_num + 1,

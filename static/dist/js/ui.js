@@ -81,6 +81,7 @@ function doFilterChange(key,value){
   let filter_shelter_value = filter_shelter.value
   let is_advanced_filters = document.getElementById('is_advanced_filters')
   let filter_open_now = document.getElementById('filter_open_now')
+  let age_filter = document.getElementById('age_filter')
   let filter_not_open_now = document.getElementById('filter_not_open_now')
   let filter_shelter_type_any = document.getElementById('filter_shelter_type_any')
   let filter_shelter_type_single_adult = document.getElementById('filter_shelter_type_single_adult')
@@ -182,6 +183,7 @@ function doFilterChange(key,value){
     params.delete('clothing');
     params.delete('requirement');
     params.delete('personal-care');
+    params.delete('age');
 
     url.search = params.toString();
     url_string = url.toString()
@@ -202,6 +204,14 @@ function doFilterChange(key,value){
       return '&open=yes'
     } else {
       return ''
+    }
+  }
+
+  let getAgeQuery = () => {
+    if(age_filter.value == ''){
+      return ''
+    } else {
+      return '&age=' + age_filter.value
     }
   }
 
@@ -398,7 +408,7 @@ function doFilterChange(key,value){
 
 
   let getOptionalQueries = () => {
-    let queries = getOpenNowQuery() + getShelterQuery() + getFoodQuery() + getClothingTypeQuery() + getPersonalCareQuery() + getHealthQuery() + getOtherQuery() + getRequirementsQuery()
+    let queries = getOpenNowQuery() + getShelterQuery() + getFoodQuery() + getClothingTypeQuery() + getPersonalCareQuery() + getHealthQuery() + getOtherQuery() + getRequirementsQuery() + getAgeQuery()
     let base = "https://yourpeer.nyc/?adv=yes"
     queries = sortQueryParams(base+queries)
     return queries.replace(base, '')
@@ -535,6 +545,13 @@ function doFilterChange(key,value){
     }
   } else if (key=='not_open_now'){
     resetOpenNow()
+    let base_url = getOptionalBaseUrl()
+    htmx.ajax('GET', base_url + getOptionalQueries(), htmx_options).then(()=>
+      {
+        return fetchLocations()
+      })
+  
+  } else if (key=='age_filter'){
     let base_url = getOptionalBaseUrl()
     htmx.ajax('GET', base_url + getOptionalQueries(), htmx_options).then(()=>
       {

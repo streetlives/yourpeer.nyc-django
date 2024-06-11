@@ -211,6 +211,8 @@ def map(request, slug=None, title=None, description=None, filters= None):
 
     # values= any value for true, no querystring for false
     open_now = query_string_or_filter(request, filters, "open")
+    
+    age_filter = query_string_or_filter(request, filters, "age")
 
     food = query_string_or_filter(request, filters, "food")
     # values= pantry, soup_kitchen, or no filter
@@ -326,6 +328,7 @@ def map(request, slug=None, title=None, description=None, filters= None):
             "is_other": other,
             "is_not_other": not other,
             "is_open_now": open_now,
+            "age_filter": age_filter,
             "is_not_open_now_query": not open_now,
             "is_not_filter": not food and not shelter and not clothing and not personal_care and not health and not other,
             "is_filter": food or shelter or clothing or personal_care or health or other,

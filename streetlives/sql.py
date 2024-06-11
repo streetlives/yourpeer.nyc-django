@@ -84,9 +84,19 @@ def convert_time(time):
         return f"{hour:02d}:{minute} {suffix}"
 
 def filter_services_by_name(d, is_location_detail, category_name=None):
-    return {
-        "services": [
-            {
+    services = []
+    for service in d['Services']: 
+        if ( category_name in (service['Taxonomies'][0]['parent_name'], service['Taxonomies'][0]['name']) if category_name else True):
+            age_eligibilities = None
+            if is_location_detail and 'Eligibilities' in service:
+                age_eligibilities = []
+                for elig in service['Eligibilities']:
+                    if elig['EligibilityParameter']['name'] == 'age':
+                        for elig_value in elig['eligible_values']:
+                            if not elig_value['all_ages']:
+                                age_eligibilities.append(elig_value)
+
+            services.append({
                 "name": service['name'],
                 "description": service['description'],
                 "category": service['Taxonomies'][0]['parent_name'],
@@ -112,9 +122,10 @@ def filter_services_by_name(d, is_location_detail, category_name=None):
                 "referral_letter" : any(["referral letter" in doc['document'].lower() for doc in service['RequiredDocuments']]) if is_location_detail else None,
                 "eligibility": [elig['description'] for elig in service['Eligibilities'] if elig['description']] if is_location_detail else None,
                 "membership": any(["membership" in elig['EligibilityParameter']['name'].lower() and elig['eligible_values'] and not "false" in [str(elig_value).lower() for elig_value in elig['eligible_values']] for elig in service['Eligibilities']]) if is_location_detail else None,
-            } for service in d['Services'] if ( category_name in (service['Taxonomies'][0]['parent_name'], service['Taxonomies'][0]['name']) if category_name else True)
-        ]
-    }
+                "age": age_eligibilities,
+            })
+
+    return { "services": services }
 
 
 def map_gogetta_to_yourpeer(d, is_location_detail):
@@ -126,7 +137,7 @@ def map_gogetta_to_yourpeer(d, is_location_detail):
     address_1 = address['address_1'] if 'address_1' in address else address['street']
     updated_at = d["last_validated_at"]
     location_id = d['id']
-    return {
+    o = {
         "id": location_id,
         'location_name': d['name'],
         'address': address_1,
@@ -152,6 +163,8 @@ def map_gogetta_to_yourpeer(d, is_location_detail):
         "other_services": { "services": [ service for service in filter_services_by_name(d, is_location_detail)['services'] if not ({service["category"], service["subcategory"]} & {'Shelter', 'Food', 'Clothing', 'Personal Care', 'Health'}) ] },
         "closed": d['closed'],
     }
+    print('o', o)
+    return o
 
 def map_gogetta_to_yourpeer_location_fields_only(d):
     print('d', d)

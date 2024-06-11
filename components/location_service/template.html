@@ -98,7 +98,7 @@
                           </p>
                         </li>
                       {% endfor %}
-                        <li  class="flex items-start space-x-2 {% if not service.membership and not service.eligibility and not service.docs  %} hidden {% endif %}">
+                        <li  class="flex items-start space-x-2 {% if not service.membership and not service.eligibility and not service.docs and not service.age %} hidden {% endif %}">
                           <span class="text-danger">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

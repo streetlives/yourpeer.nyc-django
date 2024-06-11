@@ -197,7 +197,7 @@ def get_location_from_gogetta_backend(location_id):
     response.raise_for_status()
     return map_gogetta_to_yourpeer(response.json(), True)
 
-def get_locations_from_gogetta_backend(page_num=None, page_size=None, taxonomies=None, taxonomy_specific_attributes = None, no_requirement = None, referral_required = None, membership = None, open_now = False, search = None, location_fields_only = False):
+def get_locations_from_gogetta_backend(page_num=None, page_size=None, taxonomies=None, taxonomy_specific_attributes = None, no_requirement = None, referral_required = None, membership = None, open_now = False, search = None, location_fields_only = False, age_filter=None):
     # FIXME: we include COVID19 as query param here, in orde to make results match GoGetta's. But i's not technically correct, so we probably should remov eit at some point. 
     query_url = f"{GO_GETTA_PROD_URL}/locations?occasion=COVID19"
 
@@ -205,6 +205,8 @@ def get_locations_from_gogetta_backend(page_num=None, page_size=None, taxonomies
         query_url += f"&pageNumber={page_num}&pageSize={page_size}"
     if location_fields_only:
         query_url += f'&locationFieldsOnly=true'
+    if age_filter:
+        query_url += f'&age={age_filter}'
     if taxonomies:
         query_url += f"&taxonomyId={','.join([str(t.id) for t in taxonomies])}"
     if taxonomy_specific_attributes:
@@ -239,7 +241,7 @@ def get_locations_from_gogetta_backend(page_num=None, page_size=None, taxonomies
     return number_of_pages, result_count, [ map_gogetta_to_yourpeer_location_fields_only(d) if location_fields_only else map_gogetta_to_yourpeer(d, False) for d in gogetta_response_json ]
 
 
-def get_food_sql(page_num, page_size, food_type, search, open_now, location_fields_only):
+def get_food_sql(page_num, page_size, food_type, search, open_now, location_fields_only, age_filter):
     print("get_food_sql", food_type, search, open_now)
     food_pantry = food_type and "pantry" in food_type.lower()
     soup_kitchen = food_type and "kitchen" in food_type.lower()
@@ -261,11 +263,12 @@ def get_food_sql(page_num, page_size, food_type, search, open_now, location_fiel
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
 
 
-def get_shelter_sql(page_num, page_size, is_single, is_family, search, open_now, location_fields_only):
+def get_shelter_sql(page_num, page_size, is_single, is_family, search, open_now, location_fields_only, age_filter):
     print("get_shelter_sql", search, open_now)
     query = TAXONOMIES_BASE_SQL
 
@@ -284,10 +287,11 @@ def get_shelter_sql(page_num, page_size, is_single, is_family, search, open_now,
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
 
-def get_clothing_sql(page_num, page_size, is_casual, is_professional, requires_referral, requires_registered_client, no_requirement, search, open_now, location_fields_only):
+def get_clothing_sql(page_num, page_size, is_casual, is_professional, requires_referral, requires_registered_client, no_requirement, search, open_now, location_fields_only, age_filter):
     print("get_clothing_sql", is_casual, is_professional, requires_referral, requires_registered_client, search, open_now)
     query = TAXONOMIES_BASE_SQL + " and t.name = 'Clothing'"
 
@@ -312,10 +316,11 @@ def get_clothing_sql(page_num, page_size, is_casual, is_professional, requires_r
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
 
-def get_personal_care_sql(page_num, page_size, is_toiletries, is_shower, is_laundry, is_haircut, is_restrooms, requires_referral, requires_registered_client, no_requirement,  search, open_now, location_fields_only):
+def get_personal_care_sql(page_num, page_size, is_toiletries, is_shower, is_laundry, is_haircut, is_restrooms, requires_referral, requires_registered_client, no_requirement,  search, open_now, location_fields_only, age_filter):
     print("get_personal_care_sql", is_toiletries, is_shower, is_laundry, is_haircut, is_restrooms, requires_referral, requires_registered_client, no_requirement, search, open_now)
 
     has_care_type = is_toiletries or is_shower or is_laundry or is_haircut or is_restrooms
@@ -351,10 +356,11 @@ def get_personal_care_sql(page_num, page_size, is_toiletries, is_shower, is_laun
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
 
-def get_health_sql(page_num, page_size, search, open_now, location_fields_only):
+def get_health_sql(page_num, page_size, search, open_now, location_fields_only, age_filter):
     print("get_health_sql", search, open_now)
     query = TAXONOMIES_BASE_SQL + " and (t.name='Health' or t.parent_name = 'Health')"
     taxonomies = Taxonomies.objects.raw(query)
@@ -365,10 +371,11 @@ def get_health_sql(page_num, page_size, search, open_now, location_fields_only):
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
 
-def get_other_sql(page_num, page_size, search, open_now, location_fields_only):
+def get_other_sql(page_num, page_size, search, open_now, location_fields_only, age_filter):
     print("get_other_sql", search, open_now)
     query = TAXONOMIES_BASE_SQL + " and (t.name = 'Other service' or t.parent_name = 'Other service')"
     taxonomies = Taxonomies.objects.raw(query)
@@ -379,14 +386,16 @@ def get_other_sql(page_num, page_size, search, open_now, location_fields_only):
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
 
-def get_all_sql(page_num, page_size, search, open_now, location_fields_only):
+def get_all_sql(page_num, page_size, search, open_now, location_fields_only, age_filter):
     return get_locations_from_gogetta_backend(
         open_now = open_now,
         search = search,
         location_fields_only = location_fields_only,
         page_num=page_num,
         page_size=page_size,
+        age_filter=age_filter,
     )
  

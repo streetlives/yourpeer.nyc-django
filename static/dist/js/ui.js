@@ -699,4 +699,3 @@ function submitReportIssue(event) {
     document.getElementById("locationDetailsContainer").style.display = "block";
   }
 
-

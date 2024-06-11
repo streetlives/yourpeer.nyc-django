@@ -129,6 +129,26 @@
                                 {% endif %}
                               </p>
                             {% endfor %}
+
+                            {% if service.age|length == 1 %}
+                              <p class="text-dark text-sm">
+                                Age requirement: {{service.age.0|render_age_eligibility}}
+                              </p>
+                            {% endif %}
+                            {% if service.age|length > 1 %}
+                              <p class="text-dark text-sm">
+                                Age requirements: 
+                              </p>
+                              <ul class="flex flex-col space-y-3">
+                                {% for age_req in service.age %}
+                                  <li class="flex items-start space-x-2">
+                                    <p class="text-dark text-sm">
+                                        {{age_req|render_age_eligibility}}
+                                    </p>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
                           </div>
                         </li>
                     </ul>

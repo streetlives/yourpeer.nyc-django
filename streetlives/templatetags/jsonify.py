@@ -23,16 +23,19 @@ def jsonify(object):
 register.filter('jsonify', jsonify)
 
 def render_age_eligibility(age_req):
-    s = ''
-    if age_req['age_min'] and age_req['age_max']:
-        s = f'{age_req["age_min"]}-{age_req["age_max"]}'
-    elif age_req['age_min']:
-        s = f'{age_req["age_min"]}+'
-    elif age_req['age_max']:
-        s = f'Under {age_req["age_max"]}'
-    if age_req['population_served']:
-        s += f(" ({age_req['population_served']})")
-    return s
+    if age_req['all_ages']:
+        return 'People of all ages are welcome'
+    else:
+        s = ''
+        if age_req['age_min'] and age_req['age_max']:
+            s = f'{age_req["age_min"]}-{age_req["age_max"]}'
+        elif age_req['age_min']:
+            s = f'{age_req["age_min"]}+'
+        elif age_req['age_max']:
+            s = f'Under {age_req["age_max"]}'
+        if age_req['population_served']:
+            s += f(" ({age_req['population_served']})")
+        return s
 
 register.filter('render_age_eligibility', render_age_eligibility)
 

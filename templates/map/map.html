@@ -298,7 +298,9 @@ https://opensource.org/licenses/MIT.
           id="left_panel"
         >
 
-
+        <div class="htmx-indicator absolute bg-white inset-0 flex items-center justify-center text-black z-20" id="indicator">
+          <div class="w-full h-full flex items-center justify-center">Loading..</div>
+        </div>
 
 
         {% if location is None %}
@@ -1042,6 +1044,7 @@ https://opensource.org/licenses/MIT.
               
 
                 <div class="text-sm px-6 py-4 flex items-center border-b border-dotted border-neutral-200 justify-between">
+                  
                   <h1>
                     <!-- <span x-show="$store.search.searchedQuery" x-cloak>
                       <span x-text="$store.locations.currentLocations.length"></span>
@@ -1220,6 +1223,7 @@ https://opensource.org/licenses/MIT.
                       <a
                         href="{{location.slug}}"
                         class="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
+                        hx-indicator="#indicator"
                         hx-get="{{location.slug}}" hx-push-url="true" hx-swap="outerHTML" hx-select="#left_panel" hx-target="#left_panel"
                         _=" on htmx:afterRequest switchActiveMarker('{{location.id}}')"
                       >
@@ -1723,6 +1727,8 @@ https://opensource.org/licenses/MIT.
               {% endif %}
           </ul>  
         {% endif %}
+
+        <div > Loading</div>
 
         
         <div class="mt-3">

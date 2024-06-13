@@ -560,6 +560,8 @@ https://opensource.org/licenses/MIT.
                               max="120"
                               aria-labelledby="age_filter-0-label"
                               aria-describedby="age_filter-0-description-0" 
+                              pattern="[0-9][0-9][0-9]"
+                              inputmode="numeric"
                               value="{% if age_filter %}{{ age_filter }}{% endif %}"
                               _="on blur log 'blur age filter' 
                                 then doFilterChange('age_filter', event)"

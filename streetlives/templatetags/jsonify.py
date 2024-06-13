@@ -31,10 +31,16 @@ def render_age_eligibility(age_req):
     elif age_req['age_max']:
         s = f'Under {age_req["age_max"]}'
     if age_req['population_served']:
-        s += f(" ({age_req['population_served']})")
+        s += f" ({age_req['population_served']})"
     return s
 
 register.filter('render_age_eligibility', render_age_eligibility)
+
+
+def contains_all_ages_requirement(age_reqs):
+    return bool([req for req in age_reqs if req['all_ages']])
+
+register.filter('contains_all_ages_requirement', contains_all_ages_requirement)
 
 def format_website_url(url):
     print(url)

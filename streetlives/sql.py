@@ -93,8 +93,7 @@ def filter_services_by_name(d, is_location_detail, category_name=None):
                 for elig in service['Eligibilities']:
                     if elig['EligibilityParameter']['name'] == 'age':
                         for elig_value in elig['eligible_values']:
-                            if not elig_value['all_ages']:
-                                age_eligibilities.append(elig_value)
+                            age_eligibilities.append(elig_value)
 
             services.append({
                 "name": service['name'],

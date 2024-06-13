@@ -42,11 +42,11 @@ with open('20240508 YourPeer Age and Population Served sheet - 20240508.csv') as
             {
                 'eligible_values' : {
                     'population_served': None if row['Population served'] == '' else row['Population served'],
-                    'age_max' : None if row['Age max (inclusive)'] in ('', '?') else int(row['Age max (inclusive)']) + 1,
+                    'age_max' : None if row['Age max (inclusive)'] in ('', '?') else int(row['Age max (inclusive)']),
                     'age_min': None if row['Age min'] == '' else int(row['Age min']),
                     'all_ages': bool(row['All ages']),
                 },
-                'gogetta_url': row['gogetta_link service'],
+                'gogetta_url': row['gogetta_link (service)'],
                 'row_num': row_num + 1,
             }
             for row_num, row in enumerate(csv.DictReader(f))

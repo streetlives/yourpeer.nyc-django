@@ -25,7 +25,7 @@ register.filter('jsonify', jsonify)
 def render_age_eligibility(age_req):
     s = ''
     if age_req['age_min'] and age_req['age_max']:
-        s = f'{age_req["age_min"]}-{age_req["age_max"]}'
+        s = f'{age_req["age_min"]}-{age_req["age_max"]} (until you turn {age_req["age_max"] + 1} years old)'
     elif age_req['age_min']:
         s = f'{age_req["age_min"]}+'
     elif age_req['age_max']:

@@ -375,9 +375,10 @@ https://opensource.org/licenses/MIT.
                     </svg>
                 </button>
             </div>
-            <form class="flex-1 px-4 overflow-y-scroll scrollbar-hide py-5" action="#" method="get" id="filters_form"
-            hx-swap="innerHTML" hx-target="#filters_and_list_screen" hx-push-url="true"  hx-select="#filters_and_list_screen" hx-get="/locations"
-            >
+            <form 
+              onsubmit="handleAgeFormSubmitAndBlur(event)"
+              class="flex-1 px-4 overflow-y-scroll scrollbar-hide py-5" 
+              id="filters_form">
                 <!-- Service type -->
                 
                 <fieldset>
@@ -563,8 +564,7 @@ https://opensource.org/licenses/MIT.
                               pattern="[0-9][0-9][0-9]"
                               inputmode="numeric"
                               value="{% if age_filter %}{{ age_filter }}{% endif %}"
-                              _="on blur log 'blur age filter' 
-                                then doFilterChange('age_filter', event)"
+                              onblur="handleAgeFormSubmitAndBlur(event)"
                               />
                         {% if age_filter %}
                           <script>

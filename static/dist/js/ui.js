@@ -68,6 +68,12 @@ function sortQueryParams(url) {
 
 window._last_form_url = null;
 
+function handleFiltersFormSubmit(event){
+  console.log('handleFiltersFormSubmit', handleFiltersFormSubmit, event);
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 function doFilterChange(key,value){
  // log doFilterchange 
   console.log('doFilterChange', key, value)
@@ -661,10 +667,17 @@ function doFilterChange(key,value){
         return fetchLocations()
       })
   }
-
-  
-
 }
+
+const debouncedDoFilterChange = _.debounce(doFilterChange, 100);
+
+function handleAgeFormSubmitAndBlur(event){
+  console.log('handleAgeFormSubmitAndBlur');
+  event.preventDefault();
+  event.stopPropagation();
+  debouncedDoFilterChange('age_filter', event)
+}
+
 
 function submitReportIssue(event) {
     event.preventDefault();

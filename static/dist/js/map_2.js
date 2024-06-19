@@ -180,7 +180,7 @@ function mapInitContainer() {
   async function fetchLocations() {
     console.log("fetching locations");
     // FIXME
-    //loader.style.display = 'block';
+    loader.style.display = 'block';
 
     let map_locations = await getLocations();
 
@@ -200,7 +200,7 @@ function mapInitContainer() {
     // console.log(map_locations);
 
     updatePins(map_locations);
-    //loader.style.display = 'none';
+    loader.style.display = 'none';
   }
 
   window.fetchLocations = fetchLocations;

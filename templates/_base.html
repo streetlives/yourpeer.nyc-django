@@ -109,6 +109,45 @@ https://opensource.org/licenses/MIT.
     display:inline;
 }
 
+.loading-wrapper{
+  background:#FFF;
+
+}
+.loading{
+  width:10px;
+  height:10px;
+  background:#FFF;
+  border-radius:100%;
+  float:left;
+  margin-right:5px;
+}
+.loading-0{
+    -webkit-animation:bounce 1s infinite;
+    -webkit-animation-delay:.1s;
+    background:black
+  
+}
+.loading-1{
+    -webkit-animation:bounce 1s infinite;
+    -webkit-animation-delay:.3s;
+    background:black;
+}
+.loading-2{
+    -webkit-animation:bounce 1s infinite ease;
+    -webkit-animation-delay:.5s;
+    background:black;
+}
+@-webkit-keyframes bounce {
+  0%, 100% {
+    opacity:1;
+    transform: scale(1);
+  }
+  60% {
+    opacity:.0;
+   transform: scale(0.5);
+  }
+}
+
     </style>
 
     {% block head %}

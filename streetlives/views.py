@@ -139,6 +139,9 @@ def get_locations(page, page_size, filters=None, location_fields_only=False) -> 
 
     search_term = filters.get("search")
     open_now = filters.get("open_now") == 'yes'
+    age_filter = filters.get("age_filter")
+    if age_filter:
+        age_filter = int(age_filter)
 
     num_pages = None
     result_count = None
@@ -146,12 +149,12 @@ def get_locations(page, page_size, filters=None, location_fields_only=False) -> 
     results = None
 
     if filters.get("food"):
-        results = get_food_sql(page, page_size, filters.get("food_type"), search_term, open_now, location_fields_only)
+        results = get_food_sql(page, page_size, filters.get("food_type"), search_term, open_now, location_fields_only, age_filter)
 
     elif filters.get("shelter"):
         is_single = filters.get("shelter") and "single" in filters.get("shelter")
         is_family = filters.get("shelter") and "family" in filters.get("shelter")
-        results = get_shelter_sql(page, page_size, is_single, is_family, search_term, open_now, location_fields_only)
+        results = get_shelter_sql(page, page_size, is_single, is_family, search_term, open_now, location_fields_only, age_filter)
 
     elif filters.get("clothing"):
         is_casual = filters.get("clothing") and "casual" in filters.get("clothing")
@@ -159,7 +162,7 @@ def get_locations(page, page_size, filters=None, location_fields_only=False) -> 
         requires_referral = filters.get("requirement") and "referral-letter" in filters.get("requirement")
         requires_registered_client = filters.get("requirement") and "registered-client" in filters.get("requirement")
         no_requirement = filters.get("requirement") and "no" in filters.get("requirement")
-        results = get_clothing_sql(page, page_size, is_casual, is_professional, requires_referral, requires_registered_client, no_requirement, search_term, open_now, location_fields_only)
+        results = get_clothing_sql(page, page_size, is_casual, is_professional, requires_referral, requires_registered_client, no_requirement, search_term, open_now, location_fields_only, age_filter)
 
     elif filters.get("personal_care"):
         is_toiletries = filters.get("personal_care") and "toiletries" in filters.get("personal_care")
@@ -172,16 +175,16 @@ def get_locations(page, page_size, filters=None, location_fields_only=False) -> 
         requires_registered_client = filters.get("requirement") and "registered-client" in filters.get("requirement")
         no_requirement = filters.get("requirement") and "no" in filters.get("requirement")
 
-        results = get_personal_care_sql(page, page_size, is_toiletries, is_showers, is_laundry, is_haircuts, is_restrooms, requires_referral, requires_registered_client, no_requirement, search_term, open_now, location_fields_only)
+        results = get_personal_care_sql(page, page_size, is_toiletries, is_showers, is_laundry, is_haircuts, is_restrooms, requires_referral, requires_registered_client, no_requirement, search_term, open_now, location_fields_only, age_filter)
 
     elif filters.get("health"):
-        results = get_health_sql(page, page_size, search_term, open_now, location_fields_only)
+        results = get_health_sql(page, page_size, search_term, open_now, location_fields_only, age_filter)
 
     elif filters.get("other"):
-        results = get_other_sql(page, page_size, search_term, open_now, location_fields_only)
+        results = get_other_sql(page, page_size, search_term, open_now, location_fields_only, age_filter)
 
     else: 
-        results = get_all_sql(page, page_size, search_term, open_now, location_fields_only)
+        results = get_all_sql(page, page_size, search_term, open_now, location_fields_only, age_filter)
 
     return results
 
@@ -211,6 +214,8 @@ def map(request, slug=None, title=None, description=None, filters= None):
 
     # values= any value for true, no querystring for false
     open_now = query_string_or_filter(request, filters, "open")
+    
+    age_filter = query_string_or_filter(request, filters, "age")
 
     food = query_string_or_filter(request, filters, "food")
     # values= pantry, soup_kitchen, or no filter
@@ -271,7 +276,8 @@ def map(request, slug=None, title=None, description=None, filters= None):
         "shelter_type": shelter,
         "clothing_type": clothing,
         "requirement": requirement_types,
-        "search": search
+        "search": search,
+        "age_filter": age_filter,
     }
     filters.update(new_filters)
 
@@ -326,6 +332,7 @@ def map(request, slug=None, title=None, description=None, filters= None):
             "is_other": other,
             "is_not_other": not other,
             "is_open_now": open_now,
+            "age_filter": age_filter,
             "is_not_open_now_query": not open_now,
             "is_not_filter": not food and not shelter and not clothing and not personal_care and not health and not other,
             "is_filter": food or shelter or clothing or personal_care or health or other,

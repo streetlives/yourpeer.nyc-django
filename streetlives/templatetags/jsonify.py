@@ -22,10 +22,22 @@ def jsonify(object):
 
 register.filter('jsonify', jsonify)
 
+def format_age_max_suffix(age_max):
+    remainder = age_max % 10 
+    if remainder == 1:
+        return 'st'
+    elif remainder == 2:
+        return 'nd'
+    elif remainder == 3:
+        return 'rd'
+    else:
+        return 'th'
+
 def render_age_eligibility(age_req):
     s = ''
     if age_req['age_min'] and age_req['age_max']:
-        s = f'{age_req["age_min"]}-{age_req["age_max"]} (until you turn {age_req["age_max"] + 1} years old)'
+        age_max_plus_one = age_req["age_max"] + 1
+        s = f'{age_req["age_min"]}-{age_req["age_max"]} (until your {age_max_plus_one}{format_age_max_suffix(age_max_plus_one)} birthday)'
     elif age_req['age_min']:
         s = f'{age_req["age_min"]}+'
     elif age_req['age_max']:

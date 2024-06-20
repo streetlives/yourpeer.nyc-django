@@ -42,6 +42,15 @@ def contains_all_ages_requirement(age_reqs):
 
 register.filter('contains_all_ages_requirement', contains_all_ages_requirement)
 
+from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
+
+def remove_age_filter(current_url):
+    parsed_url = urlparse(current_url)
+    parsed_query_params = { k : v[0] if type(v) == list else v for k, v in  parse_qs(parsed_url.query).items() if k != 'age' }
+    return urlunparse(parsed_url._replace(query=urlencode(parsed_query_params)))
+
+register.filter('remove_age_filter', remove_age_filter)
+
 def format_website_url(url):
     print(url)
     if not url:

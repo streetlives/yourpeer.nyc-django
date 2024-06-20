@@ -1064,6 +1064,17 @@ https://opensource.org/licenses/MIT.
                   <span class="leading-3 truncate">Other</span>
                 </a>
                 {% endif %}
+                {% if age_filter %}
+                <a 
+                  id="age_filter_pill"
+                  class="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+                  hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
+                  _="on htmx:afterRequest fetchLocations()"
+                  href={{request.get_full_path | remove_age_filter}}
+                  >
+                  <span class="leading-3 truncate">Age: {{age_filter}}</span>
+                </a>
+                {% endif %}
                 <button class="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-gray-300 rounded-full text-xs py-1 px-3" _="on click log 'all filters open' then show #filters_popup then put 'true' into #is_advanced_filters.value" >
                   <img src="{% static 'dist/img/icons/filters.svg' %}" class="w-4 h-4" alt="">
                   <span class="leading-3 truncate">All Filters</span>

@@ -122,7 +122,7 @@ with open('out.csv', 'w') as f:
                         service_id
                     )
                     values(
-                        gen_random_uuid(),
+                        %s,
                         %s,
                         NOW(),
                         NOW(),
@@ -130,6 +130,7 @@ with open('out.csv', 'w') as f:
                         %s
                     )
             ''', (
+                str(uuid.uuid4()),
                 Json([eligible_values]),
                 age_parameter_id,
                 service_id,

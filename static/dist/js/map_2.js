@@ -111,8 +111,9 @@ function mapInitContainer() {
 
   let scale = 25;
   let isLoadingMap = true;
-  const loader = document.getElementById('loader');
-  console.log(loader)
+  // FIXME
+  //const loader = document.getElementById('loader');
+  //console.log(loader)
 
   const centralPark = {
     lat: 40.782539,
@@ -178,7 +179,8 @@ function mapInitContainer() {
 
   async function fetchLocations() {
     console.log("fetching locations");
-    loader.style.display = 'block';
+    // FIXME
+    //loader.style.display = 'block';
 
     let map_locations = await getLocations();
 
@@ -198,7 +200,7 @@ function mapInitContainer() {
     // console.log(map_locations);
 
     updatePins(map_locations);
-    loader.style.display = 'none';
+    //loader.style.display = 'none';
   }
 
   window.fetchLocations = fetchLocations;

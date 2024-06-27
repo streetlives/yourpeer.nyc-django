@@ -172,14 +172,15 @@ function mapInitContainer() {
       return res.data.locations;
     } catch (err) {
       console.log(err);
+      loader.style.display = 'none';
       return [];
     }
   }
 
   async function fetchLocations() {
     console.log("fetching locations");
-    // FIXME
-    //loader.style.display = 'block';
+    loader.style.display = 'block';
+
 
     let map_locations = await getLocations();
 

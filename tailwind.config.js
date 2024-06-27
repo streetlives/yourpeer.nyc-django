@@ -57,7 +57,7 @@ module.exports = {
       }, 
     },
   },
-  content: ["./templates/**/*.html", "./static/js/**/*.js"],
+  content: ["./templates/**/*.html", "./static/js/**/*.js", "./components/**/*.html",],
   plugins: [
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),

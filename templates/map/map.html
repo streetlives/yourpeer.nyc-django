@@ -1184,7 +1184,7 @@ https://opensource.org/licenses/MIT.
                           {% if location.accommodation_services.services|length >= 1 %}
                           <!-- :class="{'order-first': $store.filters.serviceType === 'shelters-housing'}" -->
                             <li 
-                              class="flex space-x-1.5 text-sm text-dark"
+                              class=" {% if request.resolver_match.url_name == 'shelters-housing' %} order-first {% endif %} flex space-x-1.5 text-sm text-dark"
                             >
                               <span class="flex-shrink-0">
                                 <svg width="16"
@@ -1205,7 +1205,7 @@ https://opensource.org/licenses/MIT.
                           {% endif %}
 
                           {% if location.food_services.services|length >= 1 %}
-                            <li class="flex space-x-1.5 text-sm text-dark" :class="{'order-first': $store.filters.serviceType === 'food'}">
+                            <li class=" {% if request.resolver_match.url_name == 'food' %} order-first {% endif %} flex space-x-1.5 text-sm text-dark" :class="{'order-first': $store.filters.serviceType === 'food'}">
                               <img src="{% static 'dist/img/icons/food-icon.svg' %}" class="flex-shrink-0 max-h-5" alt="" />
                               <p>
                                 {% for item in location.food_services.services %}
@@ -1217,8 +1217,7 @@ https://opensource.org/licenses/MIT.
                           {% endif %}
 
                           {% if location.clothing_services.services|length >= 1 %}
-                          <!-- :class="{'order-first': $store.filters.serviceType === 'clothing'}" -->
-                            <li class="flex space-x-1.5 text-sm text-dark" >
+                            <li class="{% if request.resolver_match.url_name == 'clothing' %} order-first {% endif %} flex space-x-1.5 text-sm text-dark" >
                               <img src="{% static "dist/img/icons/clothing.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
                               <p>
                                 {% for item in location.clothing_services.services %}
@@ -1230,7 +1229,7 @@ https://opensource.org/licenses/MIT.
                           {% endif %}
 
                           {% if location.personal_care_services.services|length >= 1 %}
-                            <li class="flex space-x-1.5 text-sm text-dark">
+                            <li class="{% if request.resolver_match.url_name == 'personal-care' %} order-first {% endif %} flex space-x-1.5 text-sm text-dark">
                               <img src="{% static "dist/img/icons/personal-care.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
                               <p>
                                 {% for item in location.personal_care_services.services %}
@@ -1242,7 +1241,7 @@ https://opensource.org/licenses/MIT.
                           {% endif %}
 
                           {% if location.health_services.services|length >= 1 %}
-                            <li class="flex space-x-1.5 text-sm text-dark">
+                            <li class="{% if request.resolver_match.url_name == 'health' %} order-first {% endif %}  flex space-x-1.5 text-sm text-dark">
                               <img src="{% static "dist/img/icons/health.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
                               <p>
                                 {% for item in location.health_services.services %}
@@ -1254,7 +1253,7 @@ https://opensource.org/licenses/MIT.
                           {% endif %}
 
                           {% if location.other_services.services|length >= 1 %}
-                            <li class="flex space-x-1.5 text-sm text-dark">
+                            <li class="{% if request.resolver_match.url_name == 'other-services' %} order-first {% endif %}  flex space-x-1.5 text-sm text-dark">
                               <img src="{% static "dist/img/icons/dots.svg" %}" class="flex-shrink-0 max-h-5" alt="" />
                               <p>
                                 {% for item in location.other_services.services %}

@@ -463,6 +463,12 @@ def locations_slug(request, slug=None):
 
             canonical_url = request.build_absolute_uri(request.path)
 
+            previous_url = request.META.get('HTTP_REFERER')
+            pathname = None
+            if previous_url:
+                parsed_url = urlparse(previous_url)
+                pathname = parsed_url.path
+
             response =  render(
                 request,
                 "map/map.html",
@@ -476,6 +482,7 @@ def locations_slug(request, slug=None):
                     + " | YourPeer",
                     "page_description": this_location["name"] + " | YourPeer",
                     "canonical_url": canonical_url,
+                    'previous_path': pathname,
                 },
             )
     # print("HX_PUSH is " + request.META.get("HTTP_HX_PUSH_URL", False))

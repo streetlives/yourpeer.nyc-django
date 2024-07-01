@@ -1,6 +1,6 @@
 {% load static %}
 {% load jsonify %}
-<div class="bg-white rounded-lg {% if name in request.GET %} order-first {% endif %} ">
+<div class="{% if path == active_category %} order-first {% endif %} bg-white rounded-lg {% if name in request.GET %} order-first {% endif %} ">
     <div
       class="px-3 py-3 flex items-center space-x-2 border-b border-gray-200"
     >
@@ -10,7 +10,7 @@
         alt=""
       />
       <h3 class="text-dark text-lg font-medium leading-3">
-        {{ name }}
+        {{ name }} 
       </h3>
     </div>
 
@@ -29,7 +29,7 @@
           > 
             <img
               src="{% static 'dist/img/icons/arrow-down.svg' %}"
-              class="arrow w-7 h-7 object-contain max-h-7 transition -rotate-90"
+              class="arrow w-7 h-7 object-contain max-h-7 transition {% if  service_info.services|length == 1 and active_category == path %} hello {% else %} -rotate-90 {% endif %} "
               alt=""
             />
             <span class="absolute bg-transparent inset-y-0 left-0 -right-[500px]"></span>
@@ -50,7 +50,15 @@
 
             <!-- dropdown content -->
             {% if service.description or service.info or service.docs or service.schedule %}
-            <div class="collapseContent overflow-hidden" id="{{service.name}}" style="display: none;">
+            <div 
+              class="collapseContent overflow-hidden" 
+              id="{{service.name}}" 
+              {% if service_info.services|length == 1 and active_category == path %} 
+                style="display: block;"
+              {% else %}
+                style="display: none;"
+              {% endif %}
+            >
               <!-- :class="{'py-2': (service.info?.length || service.description || service.docs?.length || Object.keys(service.schedule).length || service.membership) && (service.closed ? service.info?.length : true)}" -->
               <div {% if not service.closed or service.info or service.description %} class="py-2" {% endif %} >
                 {% if not service.closed %}

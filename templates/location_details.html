@@ -129,7 +129,7 @@ https://opensource.org/licenses/MIT.
       translate="no"
       id="location_name"
     >
-      {{ location.name }}
+      {{ location.name }} 
       </h1>
     
     <div class="mt-1">
@@ -351,32 +351,32 @@ https://opensource.org/licenses/MIT.
 
     <!-- Personal care -->
     {% if location.personal_care_services.services|length > 0 %}
-      {% component "location_service" service_info=location.personal_care_services name="Personal care" icon="dist/img/icons/personal-care-icon.png" %}{% endcomponent %}
+      {% component "location_service" service_info=location.personal_care_services active_category=previous_path path="/personal-care" name="Personal care" icon="dist/img/icons/personal-care-icon.png" %}{% endcomponent %}
     {% endif %}
 
     <!-- Accommodations -->
     {% if location.accommodation_services.services|length > 0 %}
-      {% component "location_service" service_info=location.accommodation_services name="Shelter & Housing" icon="dist/img/icons/home-icon.svg" %}{% endcomponent %}
+      {% component "location_service" service_info=location.accommodation_services active_category=previous_path path="/shelters-housing" name="Shelter & Housing" icon="dist/img/icons/home-icon.svg" %}{% endcomponent %}
     {% endif %}
 
     <!-- Food -->
     {% if location.food_services.services|length > 0 %}
-      {% component "location_service" service_info=location.food_services name="Food" icon="dist/img/icons/food-icon.png" %}{% endcomponent %}
+        {% component "location_service" service_info=location.food_services active_category=previous_path path='/food' name="Food" icon="dist/img/icons/food-icon.png" %}{% endcomponent %}
     {% endif %}
 
     <!-- Clothing -->
     {% if location.clothing_services.services|length > 0 %}      
-      {% component "location_service" service_info=location.clothing_services name="Clothing " icon="dist/img/icons/clothing-icon.png" %}{% endcomponent %}
+      {% component "location_service" service_info=location.clothing_services active_category=previous_path path="/clothing" name="Clothing " icon="dist/img/icons/clothing-icon.png" %}{% endcomponent %}
     {% endif %}
 
     <!-- Health -->
     {% if location.health_services.services|length > 0 %}   
-      {% component "location_service" service_info=location.health_services name="Health" icon="dist/img/icons/health-icon.png" %}{% endcomponent %}
+      {% component "location_service" service_info=location.health_services active_category=previous_path path="/health" name="Health" icon="dist/img/icons/health-icon.png" %}{% endcomponent %}
     {% endif %}
 
     <!-- Other Services -->
     {% if location.other_services.services|length > 0 %}   
-      {% component "location_service" service_info=location.other_services name="Other Services" icon="dist/img/icons/dot-icon.png" %}{% endcomponent %}
+      {% component "location_service" service_info=location.other_services active_category=previous_path path="/other-service" name="Other Services" icon="dist/img/icons/dot-icon.png" %}{% endcomponent %}
     {% endif %}
 
     <!-- TODO - only for food location -->

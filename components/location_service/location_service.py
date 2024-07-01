@@ -7,11 +7,16 @@ class LocationService(component.Component):
     # you can override def get_template_name() instead of specifying the below variable.
     template_name = "location_service/template.html"
 
-    def get_context_data(self, service_info, name , icon):
+    def get_context_data(self, service_info, name , icon, path, active_category):
+
+
+
         return {
             "service_info": service_info,
             "name": name,
-            "icon": icon
+            "icon": icon,
+            "path": path,
+            "active_category": active_category
         }
 
     # class Media:

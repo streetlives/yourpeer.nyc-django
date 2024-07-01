@@ -188,11 +188,16 @@ https://opensource.org/licenses/MIT.
                 </div>
                 <form
                   class="md:flex items-center ml-2 relative flex-1"
-                  action="#"
+                  action="/"
                   method="GET"
                   id="search_form"
-                  hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-get=""
-                  onSubmit="doSearchSubmit(event)"
+                  hx-target="#filters_and_list_screen" 
+                  hx-push-url="true" 
+                  hx-swap="innerHTML" 
+                  hx-select="#filters_and_list_screen" 
+                  hx-get=""      
+                  hx-indicator="#indicator-2"    
+                  onsubmit="doSearchSubmit(event)"       
                 >
                   <input
                     class="text-xs md:pl-3 sm:text-sm text-gray-600 w-full border-none p-0 focus:ring-0 block mt-0"
@@ -228,6 +233,7 @@ https://opensource.org/licenses/MIT.
                       id="search_panel_link"
                       hx-target="#filters_and_list_screen" hx-push-url="true" hx-swap="innerHTML" hx-select="#filters_and_list_screen" hx-boost="true"
                       onClick="doSearchSubmit(event)"
+                      hx-indicator="#indicator-2"  
                     >
                       <img
                         src="{% static 'dist/img/icons/search-icon.png' %}"
@@ -304,7 +310,7 @@ https://opensource.org/licenses/MIT.
         >
         </div>
         <div 
-          class="htmx-indicator absolute inset-0 w-full h-full z-20 bg-white" id="indicator-2"
+          class="htmx-indicator absolute inset-0 w-full h-full z-10 bg-white" id="indicator-2"
         >
           <div class="card w-full flex-1">
             <div class="loading-p-24">

@@ -13,13 +13,20 @@ function doSearch() {
     let search_panel_link = document.getElementById('search_panel_link')
     let search_form = document.getElementById('search_form')
 
+    let url = new URL(window.location.href);
+
     if (input.length > 0) {
         search_panel.style.display = 'block'
-        search_for.innerHTML = input
-        search_panel_link.href = '/locations?search=' + input.split(' ').join('+')
-        search_form.action = '/locations?search=' + input.split(' ').join('+')
+        search_for.innerHTML = input;
+
+        url.searchParams.set('search', input.split(' ').join('+'));
+
+
+
+        search_panel_link.href = url.pathname + url.search
+        search_form.action = url.pathname + url.search
         // set hx-get of search form
-        search_form.setAttribute('hx-get', '/locations?search=' + input.split(' ').join('+'))
+        search_form.setAttribute('hx-get', url.pathname + url.search)
 
     } else {
         search_panel.style.display = 'none'
@@ -27,9 +34,11 @@ function doSearch() {
 }
 
 function doSearchSubmit(event){
-  event.preventDefault()
+  event.preventDefault();
   let input = document.getElementById('search_input').value
+  // let form = document.getElementById('search_input')
   let search_form = document.getElementById('search_form')
+  // window.URL()
   let search_panel = document.getElementById('search_panel')
   if (input.length > 0) {
     search_form.submit()

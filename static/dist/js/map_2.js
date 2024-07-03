@@ -168,7 +168,6 @@ function mapInitContainer() {
         url += "?json=true";
       }
       const res = await axios.get(url);
-      console.log(res);
       return res.data.locations;
     } catch (err) {
       console.log(err);
@@ -178,7 +177,6 @@ function mapInitContainer() {
   }
 
   async function fetchLocations() {
-    console.log("fetching locations");
     loader.style.display = 'block';
 
 
@@ -197,10 +195,8 @@ function mapInitContainer() {
       }
     }
 
-    // console.log(map_locations);
-
     updatePins(map_locations);
-    //loader.style.display = 'none';
+    loader.style.display = 'none';
   }
 
   window.fetchLocations = fetchLocations;

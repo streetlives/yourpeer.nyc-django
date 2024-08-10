@@ -1,3 +1,5 @@
+# Note: This repository is deprecated and archived. Please use [https://github.com/streetlives/yourpeer.nyc](https://github.com/streetlives/yourpeer.nyc) instead.
+
 These instructions are for Ubuntu Linux 22.04
 
 # Open a new issue and request to be onboarded

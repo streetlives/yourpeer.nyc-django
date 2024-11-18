@@ -22,7 +22,46 @@ def jsonify(object):
 
 register.filter('jsonify', jsonify)
 
+def format_age_max_suffix(age_max):
+    remainder = age_max % 10 
+    if remainder == 1:
+        return 'st'
+    elif remainder == 2:
+        return 'nd'
+    elif remainder == 3:
+        return 'rd'
+    else:
+        return 'th'
 
+def render_age_eligibility(age_req):
+    s = ''
+    if age_req['age_min'] and age_req['age_max']:
+        age_max_plus_one = age_req["age_max"] + 1
+        s = f'{age_req["age_min"]}-{age_req["age_max"]} (until your {age_max_plus_one}{format_age_max_suffix(age_max_plus_one)} birthday)'
+    elif age_req['age_min']:
+        s = f'{age_req["age_min"]}+'
+    elif age_req['age_max']:
+        s = f'Under {age_req["age_max"]}'
+    if age_req['population_served']:
+        s += f" ({age_req['population_served']})"
+    return s
+
+register.filter('render_age_eligibility', render_age_eligibility)
+
+
+def contains_all_ages_requirement(age_reqs):
+    return bool([req for req in age_reqs if req['all_ages']])
+
+register.filter('contains_all_ages_requirement', contains_all_ages_requirement)
+
+from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
+
+def remove_age_filter(current_url):
+    parsed_url = urlparse(current_url)
+    parsed_query_params = { k : v[0] if type(v) == list else v for k, v in  parse_qs(parsed_url.query).items() if k != 'age' }
+    return urlunparse(parsed_url._replace(query=urlencode(parsed_query_params)))
+
+register.filter('remove_age_filter', remove_age_filter)
 
 def format_website_url(url):
     print(url)

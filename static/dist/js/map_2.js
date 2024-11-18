@@ -171,6 +171,7 @@ function mapInitContainer() {
       return res.data.locations;
     } catch (err) {
       console.log(err);
+      loader.style.display = 'none';
       return [];
     }
   }
